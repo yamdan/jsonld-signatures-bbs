@@ -92,13 +92,15 @@ export class BbsBlsSignature2020 extends suites.LinkedDataProof {
    */
   async createProof(options: CreateProofOptions): Promise<object> {
     const {
-      document,
       purpose,
       documentLoader,
       expansionMap,
-      compactProof
+      compactProof,
+      requiredRevealDocumentFrame,
     } = options;
 
+    let { document } = options;
+    
     let proof;
     if (this.proof) {
       // use proof JSON-LD document passed to API
@@ -145,6 +147,14 @@ export class BbsBlsSignature2020 extends suites.LinkedDataProof {
       expansionMap
     });
 
+    // Create the identifier issuer
+    // Note - we have to use an issuer that will persist in things
+    // like framing operations and expanding and compacting
+    const issuer = new jsonld.util.IdentifierIssuer('urn:bnid:');
+
+    //Label any blank nodes in the input document
+    document = jsonld.util.relabelBlankNodes(document, { issuer });
+
     // create data to sign
     const verifyData = (
       await this.createVerifyData({
@@ -154,7 +164,32 @@ export class BbsBlsSignature2020 extends suites.LinkedDataProof {
         expansionMap,
         compactProof
       })
-    ).map(item => new Uint8Array(Buffer.from(item)));
+    );
+
+    // Frame the labeled input document to create the required reveal document result
+    const requiredRevealDocument = await jsonld.frame(
+      document,
+      requiredRevealDocumentFrame,
+      { documentLoader }
+    );
+
+    // create data to sign
+    const requiredRevealStatements = (
+      await this.createVerifyDocumentData(requiredRevealDocument, {
+        documentLoader,
+        expansionMap,
+        compactProof
+      })
+    );
+
+    // Get the indicies of the statements that must be revealed
+    const requiredRevealIndicies = requiredRevealStatements.map(
+      key => verifyData.indexOf(key)
+    );
+
+    // Convert the required reveal indicies to a bit string
+    
+    // TODO the last value we sign must be the required reveal statements which is bit string
 
     // sign data
     proof = await this.sign({

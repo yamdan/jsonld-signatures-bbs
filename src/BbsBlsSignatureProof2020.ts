@@ -55,14 +55,13 @@ export class BbsBlsSignatureProof2020 extends suites.LinkedDataProof {
    */
   async deriveProof(options: DeriveProofOptions): Promise<object> {
     const {
-      document,
       proof,
       revealDocument,
       documentLoader,
       expansionMap,
       skipProofCompaction
     } = options;
-    let { nonce } = options;
+    let { document, nonce } = options;
 
     // Validate that the input proof document has a proof compatible with this suite
     if (proof.type !== this.supportedDeriveProofType) {
@@ -94,6 +93,14 @@ export class BbsBlsSignatureProof2020 extends suites.LinkedDataProof {
     // ensure proof type is set
     derivedProof.type = this.type;
 
+    // Create the identifier issuer
+    // Note - we have to use an issuer that will persist in things
+    // like framing operations and expanding and compacting
+    const issuer = new jsonld.util.IdentifierIssuer('urn:bnid:');
+
+    //Label any blank nodes in the input document
+    document = jsonld.util.relabelBlankNodes(document, { issuer });
+
     // Get the input document statements
     const documentStatements = await suite.createVerifyDocumentData(document, {
       documentLoader,
@@ -108,35 +115,14 @@ export class BbsBlsSignatureProof2020 extends suites.LinkedDataProof {
       compactProof: !skipProofCompaction
     });
 
-    // Transform any blank node identifiers for the input
-    // document statements into actual node identifiers
-    // e.g _:c14n0 => urn:bnid:_:c14n0
-    const transformedInputDocumentStatements = documentStatements.map(
-      element => {
-        const nodeIdentifier = element.split(" ")[0];
-        if (nodeIdentifier.startsWith("_:c14n")) {
-          return element.replace(
-            nodeIdentifier,
-            `<urn:bnid:${nodeIdentifier}>`
-          );
-        }
-        return element;
-      }
-    );
-
-    //Transform the resulting RDF statements back into JSON-LD
-    const compactInputProofDocument = await jsonld.fromRDF(
-      transformedInputDocumentStatements.join("\n")
-    );
-
-    // Frame the result to create the reveal document result
+    // Frame the labeled input document to create the reveal document result
     const revealDocumentResult = await jsonld.frame(
-      compactInputProofDocument,
+      document,
       revealDocument,
       { documentLoader }
     );
 
-    // Canonicalize the resulting reveal document
+    // Get the reveal document statements
     const revealDocumentStatements = await suite.createVerifyDocumentData(
       revealDocumentResult,
       {
@@ -158,7 +144,7 @@ export class BbsBlsSignatureProof2020 extends suites.LinkedDataProof {
     //Reveal the statements indicated from the reveal document
     const documentRevealIndicies = revealDocumentStatements.map(
       key =>
-        transformedInputDocumentStatements.indexOf(key) +
+        documentStatements.indexOf(key) +
         numberOfProofStatements
     );
 
@@ -182,9 +168,8 @@ export class BbsBlsSignatureProof2020 extends suites.LinkedDataProof {
 
     //Combine all the input statements that
     //were originally signed to generate the proof
-    const allInputStatements: Uint8Array[] = proofStatements
-      .concat(documentStatements)
-      .map(item => new Uint8Array(Buffer.from(item)));
+    const allInputStatements: Uint8Array[] = proofStatements.concat(documentStatements)
+                                                            .map(item => new Uint8Array(Buffer.from(item)));
 
     // Fetch the verification method
     const verificationMethod = await this.getVerificationMethod({
@@ -196,6 +181,8 @@ export class BbsBlsSignatureProof2020 extends suites.LinkedDataProof {
 
     // Construct a key pair class from the returned verification method
     const key = await this.LDKeyClass.from(verificationMethod);
+
+    // TODO need to change back to the proper blank node identifiers here
 
     // Compute the proof
     const outputProof = blsCreateProof({
