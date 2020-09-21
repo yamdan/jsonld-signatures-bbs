@@ -23,8 +23,14 @@ import {
   VerifySignatureOptions,
   SuiteSignOptions
 } from "./types";
-import { w3cDate } from "./utilities";
+import { w3cDate, getNumberOfBytesForBits, setBitInByteArray } from "./utilities";
 import { Bls12381G2KeyPair } from "@mattrglobal/bls12381-key-pair";
+
+/**
+ * The prefix identifier used to label blank nodes during JSON-LD operations
+ */
+const TRANSIENT_BLANK_NODE_ISSUER_PREFIX = "urn:bnid:";
+
 
 /**
  * A BBS+ signature suite for use with BLS12-381 key pairs
@@ -150,50 +156,70 @@ export class BbsBlsSignature2020 extends suites.LinkedDataProof {
     // Create the identifier issuer
     // Note - we have to use an issuer that will persist in things
     // like framing operations and expanding and compacting
-    const issuer = new jsonld.util.IdentifierIssuer('urn:bnid:');
+    const issuer = new jsonld.util.IdentifierIssuer(TRANSIENT_BLANK_NODE_ISSUER_PREFIX);
 
-    //Label any blank nodes in the input document
+    // Label any blank nodes in the input document
     document = jsonld.util.relabelBlankNodes(document, { issuer });
-
-    // create data to sign
-    const verifyData = (
-      await this.createVerifyData({
-        document,
-        proof,
-        documentLoader,
-        expansionMap,
-        compactProof
-      })
-    );
-
-    // Frame the labeled input document to create the required reveal document result
-    const requiredRevealDocument = await jsonld.frame(
-      document,
-      requiredRevealDocumentFrame,
-      { documentLoader }
-    );
-
-    // create data to sign
-    const requiredRevealStatements = (
-      await this.createVerifyDocumentData(requiredRevealDocument, {
-        documentLoader,
-        expansionMap,
-        compactProof
-      })
-    );
-
-    // Get the indicies of the statements that must be revealed
-    const requiredRevealIndicies = requiredRevealStatements.map(
-      key => verifyData.indexOf(key)
-    );
-
-    // Convert the required reveal indicies to a bit string
     
-    // TODO the last value we sign must be the required reveal statements which is bit string
+    // Transform input data into the form required to sign it
+    const verifyData = await this.createVerifyData({
+      document,
+      proof,
+      documentLoader,
+      expansionMap,
+      compactProof
+    });
+
+    const proofData = await this.createVerifyProofData(proof, {
+      documentLoader,
+      expansionMap
+    });
+
+    const verifyDataBytes = verifyData.map((item) => new Buffer(item));
+
+    const requiredRevealByteArray = new Uint8Array(getNumberOfBytesForBits(verifyData.length));
+
+    // Frame the input document featuring the transient blank node identifiers 
+    // to create the required reveal document result
+    if (requiredRevealDocumentFrame) {
+      const requiredRevealDocument = await jsonld.frame(
+        document,
+        requiredRevealDocumentFrame,
+        { documentLoader }
+      );
+
+      // Transform the statements that are required to be revealed
+      const requiredRevealStatements = (
+        await this.createVerifyDocumentData(requiredRevealDocument, {
+          documentLoader,
+          expansionMap,
+          compactProof
+        })
+      );
+
+      // Get the indicies of the statements that must be revealed
+      // by matching them to the data that will be signed
+      requiredRevealStatements.forEach((item) => {
+        const position = verifyData.indexOf(item);
+        setBitInByteArray(true, position, requiredRevealByteArray);
+      });
+    }
+
+    // Set the indicies of the proof statements as these must always be revealed
+    proofData.forEach((item) => {
+      const position = verifyData.indexOf(item);
+      setBitInByteArray(true, position, requiredRevealByteArray);
+    });
+
+    const requiredRevealBuffer = new Buffer(requiredRevealByteArray.buffer);
+
+    verifyDataBytes.push(requiredRevealBuffer);
+
+    proof["https://w3c-ccg.github.io/ldp-bbs2020/context/v1#requiredReveal"] = requiredRevealBuffer.toString("base64");
 
     // sign data
     proof = await this.sign({
-      verifyData,
+      verifyData: verifyDataBytes,
       document,
       proof,
       documentLoader,

@@ -120,3 +120,35 @@ export const getTypeInfo = async (
 
   return { types: jsonld.getValues(expanded, "@type"), alias };
 };
+
+/**
+ * Get the number of bytes required to represent the number of bits
+ * @param bits 
+ */
+export const getNumberOfBytesForBits = (bits: number): number => Math.ceil(bits / 8);
+
+/**
+ * Sets the bit in a given bit array represented as a Uint8 Byte Array
+ * @param state TRUE | FALSE for the target bit
+ * @param bitIndex index of the bit to set
+ * @param byteArray Byte array to set the bit in
+ */
+export const setBitInByteArray = (state: boolean, bitIndex: number, byteArray: Uint8Array) => {
+  const byteIndex = getByteIndex(bitIndex);
+  const bitMask = getBitMask(bitIndex);
+  const currentByte = byteArray[byteIndex];
+  // tslint:disable-next-line:no-object-mutation no-bitwise
+  byteArray[byteIndex] = state ? currentByte | bitMask : currentByte & ~bitMask;
+};
+
+/**
+ * Gets the bit index
+ * @param bitIndex 
+ */
+const getByteIndex = (bitIndex: number): number => Math.floor(bitIndex / 8);
+
+/**
+ * Gets the bit mask for the bit index
+ * @param bitIndex 
+ */
+const getBitMask = (bitIndex: number) => 1 << bitIndex % 8; // tslint:disable-line: no-bitwise

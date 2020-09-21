@@ -3,7 +3,6 @@
     "@version": 1.1,
     "id": "@id",
     "type": "@type",
-    "ldssk": "https://w3c-ccg.github.io/ldp-bbs2020/context/v1#",
     "BbsBlsSignature2020": {
       "@id": "https://w3c-ccg.github.io/ldp-bbs2020/context/v1#BbsBlsSignature2020",
       "@context": {
@@ -19,6 +18,7 @@
           "@type": "xsd:dateTime"
         },
         "domain": "sec:domain",
+        "requiredReveal": "https://w3c-ccg.github.io/ldp-bbs2020/context/v1#requiredReveal",
         "proofValue": "sec:proofValue",
         "nonce": "sec:nonce",
         "proofPurpose": {
@@ -63,6 +63,7 @@
           "@type": "xsd:dateTime"
         },
         "domain": "sec:domain",
+        "requiredReveal": "https://w3c-ccg.github.io/ldp-bbs2020/context/v1#requiredReveal",
         "nonce": "sec:nonce",
         "proofPurpose": {
           "@id": "sec:proofPurpose",
@@ -92,6 +93,6 @@
         }
       }
     },
-    "Bls12381G2Key2020": "ldssk:Bls12381G2Key2020"
+    "Bls12381G2Key2020": "https://w3c-ccg.github.io/ldp-bbs2020/context/v1#Bls12381G2Key2020"
   }
 }

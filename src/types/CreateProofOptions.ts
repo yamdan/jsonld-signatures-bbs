@@ -36,4 +36,8 @@ export interface CreateProofOptions {
    * Indicates whether to compact the resulting proof
    */
   readonly compactProof: boolean;
+  /**
+   * A JSON-LD frame documenting the statements that must be revealed in the proof
+   */
+  readonly requiredRevealDocumentFrame?: any;
 }
