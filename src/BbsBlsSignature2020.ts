@@ -23,14 +23,17 @@ import {
   VerifySignatureOptions,
   SuiteSignOptions
 } from "./types";
-import { w3cDate, getNumberOfBytesForBits, setBitInByteArray } from "./utilities";
+import {
+  w3cDate,
+  getNumberOfBytesForBits,
+  setBitInByteArray
+} from "./utilities";
 import { Bls12381G2KeyPair } from "@mattrglobal/bls12381-key-pair";
 
 /**
  * The prefix identifier used to label blank nodes during JSON-LD operations
  */
 const TRANSIENT_BLANK_NODE_ISSUER_PREFIX = "urn:bnid:";
-
 
 /**
  * A BBS+ signature suite for use with BLS12-381 key pairs
@@ -102,11 +105,11 @@ export class BbsBlsSignature2020 extends suites.LinkedDataProof {
       documentLoader,
       expansionMap,
       compactProof,
-      requiredRevealDocumentFrame,
+      requiredRevealDocumentFrame
     } = options;
 
     let { document } = options;
-    
+
     let proof;
     if (this.proof) {
       // use proof JSON-LD document passed to API
@@ -156,57 +159,79 @@ export class BbsBlsSignature2020 extends suites.LinkedDataProof {
     // Create the identifier issuer
     // Note - we have to use an issuer that will persist in things
     // like framing operations and expanding and compacting
-    const issuer = new jsonld.util.IdentifierIssuer(TRANSIENT_BLANK_NODE_ISSUER_PREFIX);
+    const issuer = new jsonld.util.IdentifierIssuer(
+      TRANSIENT_BLANK_NODE_ISSUER_PREFIX
+    );
 
-    // Label any blank nodes in the input document
-    document = jsonld.util.relabelBlankNodes(document, { issuer });
-    
-    // Transform input data into the form required to sign it
+    console.log(JSON.stringify(document, null, 2));
+
+    // 1. Expand the input document
+    let expandedDocument = await jsonld.expand(document, {
+      documentLoader,
+      expansionMap
+    });
+
+    console.log(JSON.stringify(expandedDocument, null, 2));
+
+    // 2. Label all blank nodes on the expanded document
+    expandedDocument = jsonld.util.relabelBlankNodes(expandedDocument, {
+      issuer
+    });
+
+    // 3. Canonicalize the expanded and labeled document and proof to N-Quads
     const verifyData = await this.createVerifyData({
-      document,
+      document: expandedDocument,
       proof,
       documentLoader,
       expansionMap,
       compactProof
     });
 
-    const proofData = await this.createVerifyProofData(proof, {
-      documentLoader,
-      expansionMap
-    });
+    console.log(JSON.stringify(expandedDocument, null, 2));
+    console.log(JSON.stringify(verifyData, null, 2));
 
-    const verifyDataBytes = verifyData.map((item) => new Buffer(item));
+    // 4. Initialize the requiredReveal BitArray to all zeros
+    const requiredRevealByteArray = new Uint8Array(
+      getNumberOfBytesForBits(verifyData.length)
+    );
 
-    const requiredRevealByteArray = new Uint8Array(getNumberOfBytesForBits(verifyData.length));
-
-    // Frame the input document featuring the transient blank node identifiers 
-    // to create the required reveal document result
     if (requiredRevealDocumentFrame) {
+      // 5. Frame input document with the required reveal frame
       const requiredRevealDocument = await jsonld.frame(
-        document,
+        expandedDocument,
         requiredRevealDocumentFrame,
         { documentLoader }
       );
 
-      // Transform the statements that are required to be revealed
-      const requiredRevealStatements = (
-        await this.createVerifyDocumentData(requiredRevealDocument, {
+      // 6. Canonicalize the required reveal frame result to N-Quads
+      const requiredRevealStatements = await this.createVerifyDocumentData(
+        requiredRevealDocument,
+        {
           documentLoader,
           expansionMap,
           compactProof
-        })
+        }
       );
 
-      // Get the indicies of the statements that must be revealed
-      // by matching them to the data that will be signed
-      requiredRevealStatements.forEach((item) => {
+      // 7. Obtain the indicies the required reveal N-Quads occupy in verify data
+      // 8. Set the relevant bits in the requiredReveal BitArray corresponding to the obtained indicies
+      requiredRevealStatements.forEach(item => {
         const position = verifyData.indexOf(item);
         setBitInByteArray(true, position, requiredRevealByteArray);
       });
     }
 
+    //TODO review this?
+    const proofData = await this.createVerifyProofData(proof, {
+      documentLoader,
+      expansionMap
+    });
+
+    // TODO here we have to transform the node identifiers to blank nodes
+    const verifyDataBytes = verifyData.map(item => new Buffer(item));
+
     // Set the indicies of the proof statements as these must always be revealed
-    proofData.forEach((item) => {
+    proofData.forEach(item => {
       const position = verifyData.indexOf(item);
       setBitInByteArray(true, position, requiredRevealByteArray);
     });
@@ -215,7 +240,9 @@ export class BbsBlsSignature2020 extends suites.LinkedDataProof {
 
     verifyDataBytes.push(requiredRevealBuffer);
 
-    proof["https://w3c-ccg.github.io/ldp-bbs2020/context/v1#requiredReveal"] = requiredRevealBuffer.toString("base64");
+    proof[
+      "https://w3c-ccg.github.io/ldp-bbs2020/context/v1#requiredReveal"
+    ] = requiredRevealBuffer.toString("base64");
 
     // sign data
     proof = await this.sign({

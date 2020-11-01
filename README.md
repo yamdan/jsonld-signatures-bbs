@@ -132,6 +132,58 @@ That gives rise to the output zero knowledge proof
 }
 ```
 
+```json
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://www.w3.org/2018/credentials/examples/v1"
+  ],
+  "type": "VerifiablePresentation",
+  "verifiableCredential": [{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://w3id.org/citizenship/v1",
+    "https://w3c-ccg.github.io/ldp-bbs2020/context/v1"
+  ],
+  "id": "https://issuer.oidp.uscis.gov/credentials/83627465",
+  "type": ["PermanentResidentCard", "VerifiableCredential"],
+  "description": "Government of Example Permanent Resident Card.",
+  "identifier": "83627465",
+  "name": "Permanent Resident Card",
+  "credentialSubject": {
+    "id": "did:example:b34ca6cd37bbf23",
+    "type": ["Person", "PermanentResident"],
+    "familyName": "SMITH",
+    "gender": "Male",
+    "givenName": "JOHN"
+  },
+  "expirationDate": "2029-12-03T12:19:52Z",
+  "issuanceDate": "2019-12-03T12:19:52Z",
+  "issuer": "did:example:489398593",
+  "proof": {
+    "type": "BbsBlsSignatureProof2020",
+    "created": "2020-05-25T23:07:10Z",
+    "verificationMethod": "did:example:489398593#test",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "ABgA/4N3qygQRJlX3gmQOlJRGb...13AkTnYNn1fUdiOJ2oKl1lGr59udFq2tBBsyC3msTtQPYJS084355GRBur5jnzPNJ2W6Gu3ZqqQeRrVyw1gzdhVDNOE8KUm9OQ3AvCuxo8PHNrqzNvc6VA==",
+    "nonce": "37pdwue1a8FWLqgwCd0QJ0IJTFhp609KtxeCTWZGnfAVE+sOBDffYez+TY/bmVy+6z4="
+  }
+}],
+  "proof": {
+    "type": "Ed25519Signature2018",
+    "created": "2018-09-14T21:19:10Z",
+    "proofPurpose": "authentication",
+    "verificationMethod": "did:example:b34ca6cd37bbf23",
+    "challenge": "1f44d55f-f161-4938-a659-f8026467f126",
+    "domain": "4jt78h47fh47",
+    "jws": "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..kTCYt5
+      XsITJX1CxPCT8yAV-TVIw5WEuts01mq-pQy7UJiN5mgREEMGlv50aqzpqh4Qq_PbChOMqs
+      LfRoPsnsgxD-WUcX16dUOqV0G_zS245-kronKb78cPktb3rk-BuQy72IFLN25DYuNzVBAh
+      4vGHSrQyHUGlcTwLtjPAnKb78"
+  }
+}
+```
+
 ## Getting started as a contributor
 
 The following describes how to get started as a contributor to this project
