@@ -11,6 +11,10 @@
  * limitations under the License.
  */
 
+import { Options } from "jsonld";
+import DocumentLoader = Options.DocumentLoader;
+import ExpansionMap = Options.ExpansionMap;
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Options for getting the type from a JSON-LD document
@@ -19,9 +23,9 @@ export interface GetTypeOptions {
   /**
    * Optional custom document loader
    */
-  documentLoader?: Function;
+  documentLoader?: DocumentLoader;
   /**
    * Optional expansion map
    */
-  expansionMap?: Function;
+  expansionMap?: ExpansionMap;
 }

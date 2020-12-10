@@ -14,6 +14,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Bls12381G2KeyPair } from "@mattrglobal/bls12381-key-pair";
 import { KeyPairSigner } from "./KeyPairSigner";
+import { Proof } from "./Proof";
 
 /**
  * Options for constructing a signature suite
@@ -43,7 +44,7 @@ export interface SignatureSuiteOptions {
   /**
    * Additional proof elements
    */
-  readonly proof?: any;
+  readonly proof?: Proof | readonly Proof[];
   /**
    * Linked Data Key class implementation
    */

@@ -15,6 +15,8 @@
 import { getProofs, getTypeInfo } from "./utilities";
 import jsonld from "jsonld";
 import { SECURITY_PROOF_URL } from "jsonld-signatures";
+import { JsonLdObj } from "jsonld/jsonld-spec";
+import { DeriveProofOptions } from "./types";
 
 /**
  * Derives a proof from a document featuring a supported linked data proof
@@ -26,8 +28,8 @@ import { SECURITY_PROOF_URL } from "jsonld-signatures";
  * @param options Options for proof derivation
  */
 export const deriveProof = async (
-  proofDocument: any,
-  revealDocument: any,
+  proofDocument: JsonLdObj,
+  revealDocument: JsonLdObj,
   { suite, documentLoader, expansionMap, skipProofCompaction }: any
 ): Promise<any> => {
   if (!suite) {
@@ -65,7 +67,7 @@ export const deriveProof = async (
     derivedProof = { ...derivedProof, proof: [derivedProof.proof] };
 
     // drop the first proof because it's already been processed
-    proofs.splice(0, 1);
+    proofs.slice(0, 1);
 
     // add all the additional proofs to the derivedProof document
     for (const proof of proofs) {
@@ -98,7 +100,8 @@ export const deriveProof = async (
 
     const ctx = jsonld.getValues(derivedProof.document, "@context");
 
-    const compactProof = await jsonld.compact(expandedProof, ctx, {
+    // TODO once jsonld.js types are fixed remove this any type
+    const compactProof: any = await jsonld.compact(expandedProof, ctx, {
       documentLoader,
       expansionMap,
       compactToRelative: false

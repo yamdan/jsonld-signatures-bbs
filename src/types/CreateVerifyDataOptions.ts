@@ -11,7 +11,12 @@
  * limitations under the License.
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Options } from "jsonld";
+import { Document } from "jsonld/jsonld-spec";
+import { Proof } from "./Proof";
+import DocumentLoader = Options.DocumentLoader;
+import ExpansionMap = Options.ExpansionMap;
+
 /**
  * Options for creating a proof
  */
@@ -19,19 +24,19 @@ export interface CreateVerifyDataOptions {
   /**
    * Document to create the proof for
    */
-  readonly document: any;
+  readonly document: Document;
   /**
    * The proof
    */
-  readonly proof: any;
+  readonly proof: Proof[];
   /**
    * Optional custom document loader
    */
-  documentLoader?: Function;
+  documentLoader?: DocumentLoader;
   /**
    * Optional expansion map
    */
-  expansionMap?: Function;
+  expansionMap?: ExpansionMap;
   /**
    * Indicates whether to compact the proof
    */

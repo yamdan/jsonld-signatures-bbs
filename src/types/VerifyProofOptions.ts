@@ -11,7 +11,13 @@
  * limitations under the License.
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Options } from "jsonld";
+import { Document } from "jsonld/jsonld-spec";
+import { Proof } from "./Proof";
+import { ProofPurpose } from "./ProofPurpose";
+import DocumentLoader = Options.DocumentLoader;
+import ExpansionMap = Options.ExpansionMap;
+
 /**
  * Options for verifying a proof
  */
@@ -19,21 +25,21 @@ export interface VerifyProofOptions {
   /**
    * The proof
    */
-  readonly proof: any;
+  readonly proof: Proof[] | Proof;
   /**
    * The document
    */
-  readonly document: any;
+  readonly document: Document;
   /**
    * The proof purpose to specify for the generated proof
    */
-  readonly purpose: any;
+  readonly purpose: ProofPurpose;
   /**
    * Optional custom document loader
    */
-  documentLoader?: Function;
+  documentLoader?: DocumentLoader;
   /**
    * Optional expansion map
    */
-  expansionMap?: Function;
+  expansionMap?: ExpansionMap;
 }

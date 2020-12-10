@@ -96,7 +96,7 @@ export const w3cDate = (date?: number | string): string => {
 export const getTypeInfo = async (
   document: any,
   options: GetTypeOptions
-): Promise<any> => {
+): Promise<{ types: string; alias: string }> => {
   const { documentLoader, expansionMap } = options;
 
   // determine `@type` alias, if any

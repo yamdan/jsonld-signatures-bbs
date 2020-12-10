@@ -11,7 +11,14 @@
  * limitations under the License.
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Options } from "jsonld";
+import { Document, JsonLdObj } from "jsonld/jsonld-spec";
+import { BbsBlsSignatureProof2020 } from "src/BbsBlsSignatureProof2020";
+import { LinkedDataSignature } from "./LinkedDataSignature";
+import { Proof } from "./Proof";
+import DocumentLoader = Options.DocumentLoader;
+import ExpansionMap = Options.ExpansionMap;
+
 /**
  * Options for creating a proof
  */
@@ -19,23 +26,23 @@ export interface DeriveProofOptions {
   /**
    * Document outlining what statements to reveal
    */
-  readonly revealDocument: any;
+  readonly revealDocument: JsonLdObj;
   /**
    * The document featuring the proof to derive from
    */
-  readonly document: any;
+  readonly document: Document;
   /**
    * The proof for the document
    */
-  readonly proof: any;
+  readonly proof: Proof;
   /**
    * Optional custom document loader
    */
-  documentLoader?: Function;
+  documentLoader?: DocumentLoader;
   /**
    * Optional expansion map
    */
-  expansionMap?: Function;
+  expansionMap?: ExpansionMap;
   /**
    * Nonce to include in the derived proof
    */
@@ -44,4 +51,13 @@ export interface DeriveProofOptions {
    * Indicates whether to compact the resulting proof
    */
   readonly skipProofCompaction?: boolean;
+
+  /**
+   * Defines the type of the suite which can be used to derive a Proof
+   * currently a LinkedDataProof suite doesn't support usage of deriveProof
+   * therefore this is strongly typed to BbsBlsSignatureProof2020.
+   * Once LinkedDataProof generically supports the API in the interface then
+   * this can be switched to LinkedDataProof.
+   */
+  readonly suite: BbsBlsSignatureProof2020;
 }

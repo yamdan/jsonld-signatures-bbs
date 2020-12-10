@@ -11,7 +11,10 @@
  * limitations under the License.
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Options } from "jsonld";
+import DocumentLoader = Options.DocumentLoader;
+import ExpansionMap = Options.ExpansionMap;
+
 /**
  * Options for canonizing a document
  */
@@ -19,11 +22,11 @@ export interface CanonizeOptions {
   /**
    * Optional custom document loader
    */
-  documentLoader?: Function;
+  documentLoader?: DocumentLoader;
   /**
    * Optional expansion map
    */
-  expansionMap?: Function;
+  expansionMap?: ExpansionMap;
   /**
    * Indicates whether to skip expansion during canonization
    */

@@ -11,20 +11,9 @@
  * limitations under the License.
  */
 
-/**
- * Result of calling verify proof
- */
-export interface VerifyProofResult {
-  /**
-   * A boolean indicating if the verification was successful
-   */
-  readonly verified: boolean;
-  /**
-   * An array containing the details of each result checked
-   */
-  readonly results: object[];
-  /**
-   * A string representing the error if the verification failed
-   */
-  readonly error?: string;
-}
+export type ProofPurpose =
+  | "authentication"
+  | "assertionMethod"
+  | "keyAgreement"
+  | "capabilityInvocation"
+  | "capabilityDelegation";

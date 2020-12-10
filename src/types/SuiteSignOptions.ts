@@ -11,7 +11,12 @@
  * limitations under the License.
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Options } from "jsonld";
+import { Document } from "jsonld/jsonld-spec";
+import { Proof } from "./Proof";
+import DocumentLoader = Options.DocumentLoader;
+import ExpansionMap = Options.ExpansionMap;
+
 /**
  * Options for signing using a signature suite
  */
@@ -19,15 +24,15 @@ export interface SuiteSignOptions {
   /**
    * Input document to sign
    */
-  readonly document: any;
+  readonly document: Document;
   /**
    * Optional custom document loader
    */
-  documentLoader?: Function;
+  documentLoader?: DocumentLoader;
   /**
    * Optional expansion map
    */
-  expansionMap?: Function;
+  expansionMap?: ExpansionMap;
   /**
    * The array of statements to sign
    */
@@ -35,5 +40,5 @@ export interface SuiteSignOptions {
   /**
    * The proof
    */
-  readonly proof: any;
+  readonly proof: Proof[] | Proof;
 }
