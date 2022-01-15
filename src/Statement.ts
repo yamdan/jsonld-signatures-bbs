@@ -15,28 +15,16 @@ const XSD_STRING = "http://www.w3.org/2001/XMLSchema#string";
 const TYPE_NAMED_NODE = "NamedNode";
 const TYPE_BLANK_NODE = "BlankNode";
 
-type Quad = {
-  subject: {
-    termType: string;
-    value: string;
-  };
-  predicate: {
-    termType: string;
-    value: string;
-  };
-  object: {
-    termType: string;
-    value: string;
-    datatype?: {
-      termType: string;
-      value: string;
-    };
-    language?: string;
-  };
-  graph?: {
-    termType: string;
-    value: string;
-  };
+type Term = {
+  termType: string;
+  value: string;
+};
+
+type ObjectTerm = {
+  termType: string;
+  value: string;
+  datatype?: Term;
+  language?: string;
 };
 
 /**
@@ -60,33 +48,59 @@ const _escape = (s: string): string => {
 };
 
 export class Statement {
-  private readonly buffer: Quad;
+  subject: Term;
+  predicate: Term;
+  object: ObjectTerm;
+  graph: Term;
 
-  constructor(terms: string);
-  constructor(terms: Quad);
-  constructor(terms: string | Quad) {
-    if (typeof terms === "string") {
+  constructor(
+    terms?: string,
+    subject?: Term,
+    predicate?: Term,
+    object?: ObjectTerm,
+    graph?: Term
+  ) {
+    if (terms) {
       const rdfStatement = NQuads.parse(terms);
       if (rdfStatement.length < 1) {
         throw Error(
           "Cannot construct TermwiseStatement instance due to incorrect input"
         );
       }
-      this.buffer = rdfStatement[0];
+      const statement = rdfStatement[0];
+      this.subject = statement.subject;
+      this.predicate = statement.predicate;
+      this.object = statement.object;
+      this.graph = statement.graph;
+    } else if (subject && predicate && object && graph) {
+      this.subject = { ...subject };
+      this.predicate = { ...predicate };
+      this.object = { ...object };
+      if (object.datatype) {
+        this.object.datatype = { ...object.datatype };
+      }
+      this.graph = { ...graph };
     } else {
-      this.buffer = terms;
+      throw Error(
+        "Either string or (subject, predicate, object, graph) must be given to Statement constructor"
+      );
     }
   }
 
   toString(): string {
-    return NQuads.serializeQuad(this.buffer);
+    return NQuads.serializeQuad({
+      subject: this.subject,
+      predicate: this.predicate,
+      object: this.object,
+      graph: this.graph
+    });
   }
 
   toTerms(): [string, string, string, string] {
-    const s = this.buffer.subject;
-    const p = this.buffer.predicate;
-    const o = this.buffer.object;
-    const g = this.buffer.graph;
+    const s = this.subject;
+    const p = this.predicate;
+    const o = this.object;
+    const g = this.graph;
 
     // subject can only be NamedNode or BlankNode
     const sOut = s.termType === TYPE_NAMED_NODE ? `<${s.value}>` : `${s.value}`;
@@ -147,15 +161,13 @@ export class Statement {
       return to;
     };
 
-    // deep copy
-    const out: Quad = JSON.parse(JSON.stringify(this.buffer));
-    out.subject = _skolemize(out.subject);
-    out.object = { ...out.object, ..._skolemize(out.object) };
-    if (out.graph) {
-      out.graph = _skolemize(out.graph);
-    }
-
-    return new Statement(out);
+    return new Statement(
+      undefined,
+      _skolemize(this.subject),
+      this.predicate,
+      { ...this.object, ..._skolemize(this.object) },
+      this.graph ? _skolemize(this.graph) : undefined
+    );
   }
 
   /**
@@ -178,25 +190,23 @@ export class Statement {
       return to;
     };
 
-    // deep copy
-    const out: Quad = JSON.parse(JSON.stringify(this.buffer));
-    out.subject = _deskolemize(out.subject);
-    out.object = { ...out.object, ..._deskolemize(out.object) };
-    if (out.graph) {
-      out.graph = _deskolemize(out.graph);
-    }
-
-    return new Statement(out);
+    return new Statement(
+      undefined,
+      _deskolemize(this.subject),
+      this.predicate,
+      { ...this.object, ..._deskolemize(this.object) },
+      this.graph ? _deskolemize(this.graph) : undefined
+    );
   }
 
   replace(from: string, to: string): Statement {
-    // deep copy
-    const replaced: Quad = JSON.parse(JSON.stringify(this.buffer));
-
-    const s = replaced.subject;
-    const p = replaced.predicate;
-    const o = replaced.object;
-    const g = replaced.graph;
+    const s = { ...this.subject };
+    const p = { ...this.predicate };
+    const o = { ...this.object };
+    if (this.object.datatype) {
+      o.datatype = { ...this.object.datatype };
+    }
+    const g = { ...this.graph };
 
     s.value = s.value.replace(from, to);
     p.value = p.value.replace(from, to);
@@ -205,6 +215,6 @@ export class Statement {
       g.value = g.value.replace(from, to);
     }
 
-    return new Statement(replaced);
+    return new Statement(undefined, s, p, o, g);
   }
 }

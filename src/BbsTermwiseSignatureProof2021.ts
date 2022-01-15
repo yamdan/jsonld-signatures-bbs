@@ -95,7 +95,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     this.key = key;
     this.useNativeCanonize = useNativeCanonize;
     this.Suite = BbsTermwiseSignature2021;
-    this.Statement = Statement;
   }
 
   // ported from
@@ -174,7 +173,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     return nQuads
       .split("\n")
       .filter((_) => _.length > 0)
-      .map((s: string) => new this.Statement(s));
+      .map((s: string) => new Statement(s));
   }
 
   /**
