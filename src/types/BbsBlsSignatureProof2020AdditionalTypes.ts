@@ -11,8 +11,7 @@
  * limitations under the License.
  */
 
-import { Statement } from "./Statement";
-import { TermwiseStatement } from "src/TermwiseStatement";
+import { Statement } from "src/Statement";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface CanonicalizeOptions {
@@ -51,11 +50,11 @@ export interface TermwiseCanonicalizeResult {
   /**
    * document statements (array of quads)
    */
-  documentStatements: TermwiseStatement[];
+  documentStatements: Statement[];
   /**
    * proof statements (array of quads)
    */
-  proofStatements: TermwiseStatement[];
+  proofStatements: Statement[];
 }
 
 export interface SkolemizeResult {
@@ -77,7 +76,7 @@ export interface TermwiseSkolemizeResult {
   /**
    * Skolemized document (array of quads)
    */
-  skolemizedDocumentStatements: TermwiseStatement[];
+  skolemizedDocumentStatements: Statement[];
 }
 
 export interface RevealOptions {

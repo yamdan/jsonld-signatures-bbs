@@ -11,11 +11,10 @@ import {
   VerifyProofOptions,
   VerifySignatureOptions,
   SuiteSignOptions,
-  Statement,
   DidDocumentPublicKey
 } from "./types";
 import { w3cDate, SECURITY_CONTEXT_URLS } from "./utilities";
-import { TermwiseStatement } from "./TermwiseStatement";
+import { Statement } from "./Statement";
 
 export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
   /**
@@ -70,7 +69,7 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
       }
     }
     this.useNativeCanonize = useNativeCanonize;
-    this.Statement = TermwiseStatement;
+    this.Statement = Statement;
   }
 
   // ported from
@@ -279,9 +278,9 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
   /**
    * @param nQuads {string} canonized RDF N-Quads as a string
    *
-   * @returns {TermwiseStatement[]} an array of statements
+   * @returns {Statement[]} an array of statements
    */
-  getStatements(nQuads: string): TermwiseStatement[] {
+  getStatements(nQuads: string): Statement[] {
     return nQuads
       .split("\n")
       .filter((_) => _.length > 0)
@@ -292,12 +291,12 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
    * @param proof to canonicalize
    * @param options to create verify data
    *
-   * @returns {Promise<TermwiseStatement[]>}.
+   * @returns {Promise<Statement[]>}.
    */
   async createVerifyProofData(
     proof: any,
     { documentLoader, expansionMap }: any
-  ): Promise<TermwiseStatement[]> {
+  ): Promise<Statement[]> {
     const c14nProofOptions = await this.canonizeProof(proof, {
       documentLoader,
       expansionMap
@@ -310,12 +309,12 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
    * @param document to canonicalize
    * @param options to create verify data
    *
-   * @returns {Promise<TermwiseStatement[]>}.
+   * @returns {Promise<Statement[]>}.
    */
   async createVerifyDocumentData(
     document: any,
     { documentLoader, expansionMap }: any
-  ): Promise<TermwiseStatement[]> {
+  ): Promise<Statement[]> {
     const c14nDocument = await this.canonize(document, {
       documentLoader,
       expansionMap

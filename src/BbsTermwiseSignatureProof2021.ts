@@ -16,7 +16,6 @@ import {
   CanonicalizeOptions,
   RevealOptions,
   RevealResult,
-  Statement,
   TermwiseCanonicalizeResult,
   DeriveProofMultiOptions,
   VerifyProofMultiOptions,
@@ -27,7 +26,7 @@ import {
   VerifyProofResult
 } from "./types";
 import { BbsTermwiseSignature2021 } from "./BbsTermwiseSignature2021";
-import { TermwiseStatement } from "./TermwiseStatement";
+import { Statement } from "./Statement";
 import { SECURITY_CONTEXT_URLS } from "./utilities";
 
 class URIAnonymizer {
@@ -96,7 +95,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     this.key = key;
     this.useNativeCanonize = useNativeCanonize;
     this.Suite = BbsTermwiseSignature2021;
-    this.Statement = TermwiseStatement;
+    this.Statement = Statement;
   }
 
   // ported from
@@ -169,9 +168,9 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
   /**
    * @param nQuads {string} canonized RDF N-Quads as a string
    *
-   * @returns {TermwiseStatement[]} an array of statements
+   * @returns {Statement[]} an array of statements
    */
-  getStatements(nQuads: string): TermwiseStatement[] {
+  getStatements(nQuads: string): Statement[] {
     return nQuads
       .split("\n")
       .filter((_) => _.length > 0)
@@ -182,12 +181,12 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    * @param proof to canonicalize
    * @param options to create verify data
    *
-   * @returns {Promise<TermwiseStatement[]>}.
+   * @returns {Promise<Statement[]>}.
    */
   async createVerifyProofData(
     proof: any,
     { documentLoader, expansionMap }: any
-  ): Promise<TermwiseStatement[]> {
+  ): Promise<Statement[]> {
     const c14nProofOptions = await this.canonizeProof(proof, {
       documentLoader,
       expansionMap
@@ -200,12 +199,12 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    * @param document to canonicalize
    * @param options to create verify data
    *
-   * @returns {Promise<TermwiseStatement[]>}.
+   * @returns {Promise<Statement[]>}.
    */
   async createVerifyDocumentData(
     document: any,
     { documentLoader, expansionMap }: any
-  ): Promise<TermwiseStatement[]> {
+  ): Promise<Statement[]> {
     const c14nDocument = await this.canonize(document, {
       documentLoader,
       expansionMap
@@ -282,7 +281,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       options;
 
     // Get the input document statements
-    const documentStatements: TermwiseStatement[] =
+    const documentStatements: Statement[] =
       await suite.createVerifyDocumentData(document, {
         documentLoader,
         expansionMap,
@@ -290,12 +289,14 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       });
 
     // Get the proof statements
-    const proofStatements: TermwiseStatement[] =
-      await suite.createVerifyProofData(proof, {
+    const proofStatements: Statement[] = await suite.createVerifyProofData(
+      proof,
+      {
         documentLoader,
         expansionMap,
         compactProof: !skipProofCompaction
-      });
+      }
+    );
 
     return { documentStatements, proofStatements };
   }
@@ -308,7 +309,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    * @returns {Promise<TermwiseSkolemizeResult>} skolemized JSON-LD document and statements
    */
   async skolemize(
-    documentStatements: TermwiseStatement[],
+    documentStatements: Statement[],
     auxilliaryIndex?: number
   ): Promise<TermwiseSkolemizeResult> {
     // Transform any blank node identifiers for the input
@@ -334,8 +335,8 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    * @returns {Promise<DeskolemizeResult>} deskolemized JSON-LD document and statements
    */
   async deskolemize(
-    skolemizedDocumentStatements: TermwiseStatement[]
-  ): Promise<TermwiseStatement[]> {
+    skolemizedDocumentStatements: Statement[]
+  ): Promise<Statement[]> {
     // Transform the blank node identifier placeholders for the document statements
     // back into actual blank node identifiers
     // e.g., <urn:bnid:_:c14n0> => _:c14n0
@@ -562,7 +563,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       const suite = new this.Suite();
 
       // Canonicalize document: get N-Quads from JSON-LD
-      const documentStatements: TermwiseStatement[] =
+      const documentStatements: Statement[] =
         await suite.createVerifyDocumentData(document, {
           documentLoader,
           expansionMap,
@@ -577,7 +578,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
 
       // Prepare an equivalence class for each blank node identifier
       const skolemizedDocumentTerms = skolemizedDocumentStatements.flatMap(
-        (item: TermwiseStatement) => item.toTerms()
+        (item: Statement) => item.toTerms()
       );
       new Set(
         skolemizedDocumentTerms.filter((term) =>
@@ -586,6 +587,14 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       ).forEach((skolemizedBnid) => {
         equivs.set(skolemizedBnid, [uuidv4(), []]);
       });
+
+      // // Identify terms to be proved in range proof
+      // const revealDocumentStatements: TermwiseStatement[] =
+      // await suite.createVerifyDocumentData(revealDocument, {
+      //   documentLoader
+      // });
+      // const rangeProofStatements: TermwiseStatement[] =
+      //   revealDocumentStatements.filter((s) => s.buffer.predicate.value === RANGE_URI));
 
       // Reveal: extract revealed parts using JSON-LD Framing
       const { revealedDocument: preRevealedDocument } = await this.reveal(
@@ -601,7 +610,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       // Prepare anonymizedStatements: N-Quads statements
       // where each specified URI and bnid is replaced by anonymous ID, i.e., urn:anon:<UUIDv4>
       const anonymizedStatements = skolemizedDocumentStatements.map(
-        (s: TermwiseStatement) => anonymizer.anonymizeStatement(s)
+        (s: Statement) => anonymizer.anonymizeStatement(s)
       );
       const revealedDocument = anonymizer.anonymizeJsonld(preRevealedDocument);
       revealedDocuments.push(revealedDocument);
@@ -627,17 +636,19 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         signatureArray.push(signature);
 
         // Canonicalize proof: get N-Quads from JSON-LD
-        const proofStatements: TermwiseStatement[] =
-          await suite.createVerifyProofData(proof, {
+        const proofStatements: Statement[] = await suite.createVerifyProofData(
+          proof,
+          {
             documentLoader,
             expansionMap,
             compactProof: !skipProofCompaction
-          });
+          }
+        );
 
         // Concat proof and document to get terms to be signed
         const terms = proofStatements
           .concat(documentStatements)
-          .flatMap((item: TermwiseStatement) => item.toTerms());
+          .flatMap((item: Statement) => item.toTerms());
         termsArray.push(
           terms.map((term: string) => new Uint8Array(Buffer.from(term)))
         );
@@ -671,7 +682,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         // to equivalence class
         const skolemizedTerms = proofStatements
           .concat(skolemizedDocumentStatements)
-          .flatMap((item: TermwiseStatement) => item.toTerms());
+          .flatMap((item: Statement) => item.toTerms());
         skolemizedTerms.forEach((term, termIndex) => {
           if (equivs.has(term) && revealedTermIndicies.includes(termIndex)) {
             const e = equivs.get(term) as [string, [number, number][]];
@@ -858,7 +869,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         }
 
         // Canonicalize document: get N-Quads from JSON-LD
-        const revealedStatements: TermwiseStatement[] =
+        const revealedStatements: Statement[] =
           await this.createVerifyDocumentData(document, {
             documentLoader,
             expansionMap
@@ -888,11 +899,13 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           proof.type = this.mappedDerivedProofType;
 
           // Canonicalize proof: get N-Quads from JSON-LD
-          const proofStatements: TermwiseStatement[] =
-            await this.createVerifyProofData(proof, {
+          const proofStatements: Statement[] = await this.createVerifyProofData(
+            proof,
+            {
               documentLoader,
               expansionMap
-            });
+            }
+          );
 
           // obtain termwise indicies
           const revealedTermIndicies = this.statementIndiciesToTermIndicies(
@@ -903,7 +916,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           // Reorder statements
           const statements = proofStatements.concat(revealedStatements);
           const reorderedStatements = revealedStatementIndicies
-            .map<[number, TermwiseStatement]>((termIndex, origIndex) => [
+            .map<[number, Statement]>((termIndex, origIndex) => [
               termIndex,
               statements[origIndex]
             ])
@@ -911,7 +924,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
             .map(([, statement]) => statement);
 
           // concat proof and document to be verified
-          const terms = reorderedStatements.flatMap((item: TermwiseStatement) =>
+          const terms = reorderedStatements.flatMap((item: Statement) =>
             item.toTerms()
           );
 

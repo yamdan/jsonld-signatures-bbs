@@ -37,5 +37,4 @@ export {
   RevealResult,
   TermwiseSkolemizeResult
 } from "./BbsBlsSignatureProof2020AdditionalTypes";
-export { Statement } from "./Statement";
 export { DeriveProofMultiOptions } from "./DeriveProofMultiOptions";

@@ -8,7 +8,6 @@
 
 import rdfCanonize from "rdf-canonize";
 const NQuads = rdfCanonize.NQuads;
-import { Statement } from "./types";
 
 const RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 const RDF_LANGSTRING = RDF + "langString";
@@ -60,7 +59,7 @@ const _escape = (s: string): string => {
   });
 };
 
-export class TermwiseStatement implements Statement {
+export class Statement {
   private readonly buffer: Quad;
 
   constructor(terms: string);
@@ -128,7 +127,7 @@ export class TermwiseStatement implements Statement {
     return this.toTerms().map((term) => new Uint8Array(Buffer.from(term)));
   }
 
-  skolemize(auxilliaryIndex?: number): TermwiseStatement {
+  skolemize(auxilliaryIndex?: number): Statement {
     const index = auxilliaryIndex !== undefined ? `${auxilliaryIndex}` : "";
 
     const _skolemize = (from: {
@@ -156,7 +155,7 @@ export class TermwiseStatement implements Statement {
       out.graph = _skolemize(out.graph);
     }
 
-    return new TermwiseStatement(out);
+    return new Statement(out);
   }
 
   /**
@@ -164,7 +163,7 @@ export class TermwiseStatement implements Statement {
    * back into actual blank node identifiers
    * e.g., <urn:bnid:_:c14n0> => _:c14n0
    */
-  deskolemize(): TermwiseStatement {
+  deskolemize(): Statement {
     const _deskolemize = (from: {
       value: string;
       termType: string;
@@ -187,10 +186,10 @@ export class TermwiseStatement implements Statement {
       out.graph = _deskolemize(out.graph);
     }
 
-    return new TermwiseStatement(out);
+    return new Statement(out);
   }
 
-  replace(from: string, to: string): TermwiseStatement {
+  replace(from: string, to: string): Statement {
     // deep copy
     const replaced: Quad = JSON.parse(JSON.stringify(this.buffer));
 
@@ -206,6 +205,6 @@ export class TermwiseStatement implements Statement {
       g.value = g.value.replace(from, to);
     }
 
-    return new TermwiseStatement(replaced);
+    return new Statement(replaced);
   }
 }
