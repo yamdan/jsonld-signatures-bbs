@@ -15,6 +15,8 @@ export const SECURITY_CONTEXT_URLS = [
   "https://www.zkp-ld.org/bbs-termwise-2021.jsonld"
 ];
 
+export const RANGE_URI = "https://www.zkp-ld.org/security#range";
+
 /**
  * The property identifying the linked data proof
  * Note - this will not work for legacy systems that

@@ -1,0 +1,15 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://www.zkp-ld.org/bbs-termwise-2021.jsonld",
+    "https://schema.org"
+  ],
+  "type": ["VerifiableCredential"],
+  "@explicit": true,
+  "issuer": {},
+  "credentialSubject": {
+    "type": "Place",
+    "@explicit": true,
+    "maximumAttendeeCapacity": { "range": [5000, 15000] }
+  }
+}

@@ -15,15 +15,15 @@ const XSD_STRING = "http://www.w3.org/2001/XMLSchema#string";
 const TYPE_NAMED_NODE = "NamedNode";
 const TYPE_BLANK_NODE = "BlankNode";
 
-type Term = {
+export type RDFTerm = {
   termType: string;
   value: string;
 };
 
-type ObjectTerm = {
+export type RDFObjectTerm = {
   termType: string;
   value: string;
-  datatype?: Term;
+  datatype?: RDFTerm;
   language?: string;
 };
 
@@ -48,17 +48,17 @@ const _escape = (s: string): string => {
 };
 
 export class Statement {
-  subject: Term;
-  predicate: Term;
-  object: ObjectTerm;
-  graph: Term;
+  subject: RDFTerm;
+  predicate: RDFTerm;
+  object: RDFObjectTerm;
+  graph: RDFTerm;
 
   constructor(
     terms?: string,
-    subject?: Term,
-    predicate?: Term,
-    object?: ObjectTerm,
-    graph?: Term
+    subject?: RDFTerm,
+    predicate?: RDFTerm,
+    object?: RDFObjectTerm,
+    graph?: RDFTerm
   ) {
     if (terms) {
       const rdfStatement = NQuads.parse(terms);

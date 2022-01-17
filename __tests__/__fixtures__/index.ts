@@ -54,6 +54,7 @@ import expVCDocument2 from "./data/exp_vc2.json";
 import expVCDocument3 from "./data/exp_vc3.json";
 import expRevealDocument from "./data/exp_reveal_document.json";
 import expRevealDocument2 from "./data/exp_reveal_document2.json";
+import expRevealDocument2ForRangeProof from "./data/exp_reveal_document2_rangeproof.json";
 import expRevealDocument3 from "./data/exp_reveal_document3.json";
 
 export {
@@ -97,6 +98,7 @@ export {
   expVCDocument3,
   expRevealDocument,
   expRevealDocument2,
+  expRevealDocument2ForRangeProof,
   expRevealDocument3,
   testAnonymousVcComplexDocument,
   testRevealAnonymousVcComplexDocument

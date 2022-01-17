@@ -26,8 +26,8 @@ import {
   VerifyProofResult
 } from "./types";
 import { BbsTermwiseSignature2021 } from "./BbsTermwiseSignature2021";
-import { Statement } from "./Statement";
-import { SECURITY_CONTEXT_URLS } from "./utilities";
+import { Statement, RDFTerm } from "./Statement";
+import { SECURITY_CONTEXT_URLS, RANGE_URI } from "./utilities";
 
 class URIAnonymizer {
   private prefix = "urn:anon:";
@@ -587,13 +587,42 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         equivs.set(skolemizedBnid, [uuidv4(), []]);
       });
 
-      // // Identify terms to be proved in range proof
-      // const revealDocumentStatements: TermwiseStatement[] =
-      // await suite.createVerifyDocumentData(revealDocument, {
-      //   documentLoader
-      // });
-      // const rangeProofStatements: TermwiseStatement[] =
-      //   revealDocumentStatements.filter((s) => s.buffer.predicate.value === RANGE_URI));
+      // Identify terms to be proved in range proof
+      const revealDocumentStatements: Statement[] =
+        await suite.createVerifyDocumentData(revealDocument, {
+          documentLoader
+        });
+      const rangeRevealStatements = revealDocumentStatements.filter(
+        (s) => s.predicate.value === RANGE_URI
+      );
+
+      const collectRangeProofStatements = (
+        terms: RDFTerm[],
+        statements: Statement[]
+      ): Statement[] => {
+        if (terms.length === 0) return statements;
+        const postStatements = revealDocumentStatements.filter((statement) =>
+          terms.some(
+            (term) =>
+              statement.object.value === term.value &&
+              statement.object.termType === term.termType
+          )
+        );
+        const nextTerms = [...new Set(postStatements.map((s) => s.subject))];
+        return collectRangeProofStatements(
+          nextTerms,
+          statements.concat(postStatements)
+        );
+      };
+
+      const postRangeRevealStatements = collectRangeProofStatements(
+        [...new Set(rangeRevealStatements.map((s) => s.subject))],
+        rangeRevealStatements
+      );
+
+      const postRangeFrameDocument = await jsonld.fromRDF(
+        postRangeRevealStatements
+      );
 
       // Reveal: extract revealed parts using JSON-LD Framing
       const { revealedDocument: preRevealedDocument } = await this.reveal(
