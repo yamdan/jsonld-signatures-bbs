@@ -30,8 +30,6 @@ export { GetProofsResult } from "./GetProofsResult";
 export { GetTypeOptions } from "./GetTypeOptions";
 export {
   CanonicalizeOptions,
-  CanonicalizeResult,
-  RevealOptions,
-  RevealResult
+  CanonicalizeResult
 } from "./BbsBlsSignatureProof2020AdditionalTypes";
 export { DeriveProofMultiOptions } from "./DeriveProofMultiOptions";

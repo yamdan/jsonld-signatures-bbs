@@ -45,31 +45,3 @@ export interface CanonicalizeResult {
    */
   proofStatements: Statement[];
 }
-
-export interface RevealOptions {
-  /**
-   * The signature suite
-   */
-  readonly suite: any;
-  /**
-   * Optional custom document loader
-   */
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  documentLoader?: Function;
-  /**
-   * Optional expansion map
-   */
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  expansionMap?: Function;
-}
-
-export interface RevealResult {
-  /**
-   * Revealed document (JSON-LD)
-   */
-  revealedDocument: any;
-  /**
-   * Revealed document statements (array of quads)
-   */
-  revealedDocumentStatements: Statement[];
-}

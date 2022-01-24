@@ -14,8 +14,6 @@ import {
   CreateVerifyDataOptions,
   CanonizeOptions,
   CanonicalizeOptions,
-  RevealOptions,
-  RevealResult,
   CanonicalizeResult,
   DeriveProofMultiOptions,
   VerifyProofMultiOptions,
@@ -300,41 +298,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
   }
 
   /**
-   * Extract revealed parts using JSON-LD Framing
-   *
-   * @param skolemizedDocument JSON-LD document
-   * @param revealDocument JSON-LD frame
-   * @param options for framing and createVerifyData
-   *
-   * @returns {Promise<RevealResult>} revealed JSON-LD document and statements
-   */
-  async reveal(
-    skolemizedDocument: string,
-    revealDocument: string,
-    options: RevealOptions
-  ): Promise<RevealResult> {
-    const { suite, documentLoader, expansionMap } = options;
-
-    // Frame the result to create the reveal document result
-    const revealedDocument = await jsonld.frame(
-      skolemizedDocument,
-      revealDocument,
-      { documentLoader }
-    );
-
-    // Canonicalize the resulting reveal document
-    const revealedDocumentStatements = await suite.createVerifyDocumentData(
-      revealedDocument,
-      {
-        documentLoader,
-        expansionMap
-      }
-    );
-
-    return { revealedDocument, revealedDocumentStatements };
-  }
-
-  /**
    * Calculate revealed indicies
    *
    * @param fullStatements full document statements
@@ -523,52 +486,11 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         equivs.set(skolemizedBnid, [uuidv4(), []]);
       });
 
-      // Identify terms to be proved in range proof
-      const revealDocumentStatements: Statement[] =
-        await suite.createVerifyDocumentData(revealDocument, {
-          documentLoader
-        });
-      const rangeRevealStatements = revealDocumentStatements.filter(
-        (s) => s.predicate.value === RANGE_URI
-      );
-
-      const collectRangeProofStatements = (
-        terms: RDFTerm[],
-        statements: Statement[]
-      ): Statement[] => {
-        if (terms.length === 0) return statements;
-        const postStatements = revealDocumentStatements.filter((statement) =>
-          terms.some(
-            (term) =>
-              statement.object.value === term.value &&
-              statement.object.termType === term.termType
-          )
-        );
-        const nextTerms = [...new Set(postStatements.map((s) => s.subject))];
-        return collectRangeProofStatements(
-          nextTerms,
-          statements.concat(postStatements)
-        );
-      };
-
-      const postRangeRevealStatements = collectRangeProofStatements(
-        [...new Set(rangeRevealStatements.map((s) => s.subject))],
-        rangeRevealStatements
-      );
-
-      const postRangeFrameDocument = await jsonld.fromRDF(
-        postRangeRevealStatements
-      );
-
       // Reveal: extract revealed parts using JSON-LD Framing
-      const { revealedDocument: preRevealedDocument } = await this.reveal(
+      const preRevealedDocument = await jsonld.frame(
         skolemizedDocument,
         revealDocument,
-        {
-          suite,
-          documentLoader,
-          expansionMap
-        }
+        { documentLoader }
       );
       const revealedDocument = anonymizer.anonymizeJsonld(preRevealedDocument);
       revealedDocuments.push(revealedDocument);
@@ -578,8 +500,9 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       const anonymizedStatements = skolemizedStatements.map((statement) =>
         anonymizer.anonymizeStatement(statement)
       );
-      const revealedDocument = anonymizer.anonymizeJsonld(preRevealedDocument);
-      revealedDocuments.push(revealedDocument);
+      const anonymizedDocument: string = await jsonld.fromRDF(
+        anonymizedStatements.join("\n")
+      );
 
       // Process multiple proofs in an input document
       let proofIndex = 0;
