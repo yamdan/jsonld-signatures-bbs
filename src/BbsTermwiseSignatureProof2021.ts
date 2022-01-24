@@ -527,8 +527,8 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       // document statements into actual node identifiers
       // e.g., _:c14n0 -> urn:bnid:<docIndex>:_:c14n0
       // where <docIndex> corresponds to the index of document in inputDocuments array
-      const skolemizedStatements = documentStatements.map((element) =>
-        element.skolemize(docIndex)
+      const skolemizedStatements = documentStatements.map((statement) =>
+        statement.skolemize(docIndex)
       );
       const skolemizedDocument: string = await jsonld.fromRDF(
         skolemizedStatements.join("\n")
@@ -590,11 +590,13 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           expansionMap
         }
       );
+      const revealedDocument = anonymizer.anonymizeJsonld(preRevealedDocument);
+      revealedDocuments.push(revealedDocument);
 
       // Prepare anonymizedStatements: N-Quads statements
       // where each specified URI and bnid is replaced by anonymous ID, i.e., urn:anon:<UUIDv4>
-      const anonymizedStatements = skolemizedStatements.map((s: Statement) =>
-        anonymizer.anonymizeStatement(s)
+      const anonymizedStatements = skolemizedStatements.map((statement) =>
+        anonymizer.anonymizeStatement(statement)
       );
       const revealedDocument = anonymizer.anonymizeJsonld(preRevealedDocument);
       revealedDocuments.push(revealedDocument);
