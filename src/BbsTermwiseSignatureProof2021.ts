@@ -23,8 +23,12 @@ import {
   VerifyProofResult
 } from "./types";
 import { BbsTermwiseSignature2021 } from "./BbsTermwiseSignature2021";
-import { Statement, RDFTerm } from "./Statement";
-import { SECURITY_CONTEXT_URLS, RANGE_URI } from "./utilities";
+import { Statement } from "./Statement";
+import {
+  SECURITY_CONTEXT_URLS,
+  NUM_OF_TERMS_IN_STATEMENT,
+  KEY_FOR_RANGEPROOF
+} from "./utilities";
 
 class URIAnonymizer {
   private prefix = "urn:anon:";
@@ -314,12 +318,12 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     // Reveal the statements indicated from the reveal document
     const preDocumentRevealedIndicies = partialStatements.map((x) =>
       fullStatements.findIndex((y) => x.toString() === y.toString())
-      );
+    );
     if (preDocumentRevealedIndicies.includes(-1)) {
-        throw new Error(
-          "Some statements in the reveal document not found in original proof"
-        );
-      }
+      throw new Error(
+        "Some statements in the reveal document not found in original proof"
+      );
+    }
     const documentRevealedIndicies = preDocumentRevealedIndicies.map(
       (idx) => idx + offset
     );
@@ -344,7 +348,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    * @returns {number[]} termwise indicies
    */
   statementIndiciesToTermIndicies(statementIndicies: number[]): number[] {
-    const NUM_OF_TERMS_IN_STATEMENT = 4;
     return statementIndicies.flatMap((index) =>
       [...Array(NUM_OF_TERMS_IN_STATEMENT).keys()].map(
         (i) => index * NUM_OF_TERMS_IN_STATEMENT + i
@@ -361,6 +364,128 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           )
           .join("")
       )
+    );
+  }
+
+  /**
+   * Identify term indicies and range to be range-proved
+   *
+   * @param revealDocument JSON-LD frame
+   * @param anonymizedDocument JSON-LD document
+   * @param anonymizedStatements N-Quad statements
+   * @param proofStatementLen length of proof statements
+   * @param suite
+   * @param partialStatements revealed document statements
+   * @param offset offset to index
+   *
+   * @returns {number[]} revealed statementwise indicies
+   */
+  async getRangeProofIndicies(
+    revealDocument: any,
+    anonymizedDocument: any,
+    anonymizedStatements: Statement[],
+    proofStatementLen: number,
+    suite: any,
+    documentLoader: any,
+    expansionMap: any
+  ): Promise<[number[], [number, number]][]> {
+    const expandedRevealDocument = await jsonld.expand(revealDocument, {
+      documentLoader
+    });
+
+    const extractPathToRanges = (
+      arr: any,
+      path: (string | number)[],
+      res: any[]
+    ): any => {
+      if (!Array.isArray(arr)) return null;
+      for (let i = 0; i < arr.length; i++) {
+        for (const [k, v] of Object.entries(arr[i])) {
+          if (k === KEY_FOR_RANGEPROOF) {
+            if (!Array.isArray(v)) return null;
+            path.push("");
+            for (const rv of v) {
+              path.push(rv["@value"]);
+            }
+            res.push(path);
+          } else if (Array.isArray(v)) {
+            extractPathToRanges(v, path.concat(k), res);
+          }
+        }
+      }
+      return res;
+    };
+
+    // extract JSON Path from root to @range
+    const pathToRanges = extractPathToRanges(expandedRevealDocument, [], []);
+
+    // construct JSON-LD frames to extract each range-proof part
+    const rangeReveals: [any, string, [number, number]][] = pathToRanges.map(
+      (path: (string | number)[]): [any, string, [number, number]] => {
+        const pathToFrame = (
+          path: (string | number)[]
+        ): [any, string, [number, number]] => {
+          const frame: any = {
+            "@explicit": true
+          };
+          let pred: string;
+          let range: [number, number];
+          if (path[1] === "") {
+            if (
+              typeof path[0] !== "string" ||
+              typeof path[2] !== "number" ||
+              typeof path[3] !== "number"
+            ) {
+              throw new Error("invalid reveal document");
+            }
+            frame[path[0]] = {};
+            pred = path[0];
+            range = [path[2], path[3]];
+          } else {
+            [frame[path[0]], pred, range] = pathToFrame(path.slice(1));
+          }
+          return [frame, pred, range];
+        };
+
+        return pathToFrame(path);
+      }
+    );
+
+    // extract statements corresponding to range-proof parts using above JSON-LD frames
+    const indiciesAndRange = await Promise.all(
+      rangeReveals.map(
+        async ([frame, pred, range]): Promise<[number[], [number, number]]> => {
+          // Frame the result to create the reveal document result
+          const revealedDocument = await jsonld.frame(
+            anonymizedDocument,
+            frame,
+            { documentLoader }
+          );
+
+          // Canonicalize the resulting reveal document
+          const statements: Statement[] = await suite.createVerifyDocumentData(
+            revealedDocument,
+            {
+              documentLoader,
+              expansionMap
+            }
+          );
+
+          const statementIndicies = this.getIndicies(
+            anonymizedStatements,
+            statements.filter((s) => s.predicate.value === pred),
+            proofStatementLen
+          );
+          return [statementIndicies, range];
+        }
+      )
+    );
+
+    return indiciesAndRange.map(
+      ([indicies, range]): [number[], [number, number]] => [
+        indicies.map((i) => i * NUM_OF_TERMS_IN_STATEMENT + 2), // statement idx -> object term idx
+        range
+      ]
     );
   }
 
@@ -431,6 +556,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     const revealedDocuments: any = [];
     const derivedProofs: any = [];
     const revealedStatementsArray: Statement[][] = [];
+    const rangeProofIndiciesArray: [number[], [number, number]][][] = [];
 
     const equivs: Map<string, [string, [number, number][]]> = new Map(
       hiddenUris.map((uri) => [`<${uri}>`, [uuidv4(), []]])
@@ -566,7 +692,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
             revealedStatements,
             proofStatements.length
           )
-          );
+        );
         revealedStatementIndiciesArray.push(revealedStatementIndicies);
 
         // Calculate revealed term indicies
@@ -587,6 +713,18 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
               e[1].push([proofIndex + proofIndexOffset[docIndex], termIndex]);
             }
           });
+
+        // Identify terms to be proved in range proof
+        const rangeProofIndicies = await this.getRangeProofIndicies(
+          revealDocument,
+          anonymizedDocument,
+          anonymizedStatements,
+          proofStatements.length,
+          suite,
+          documentLoader,
+          expansionMap
+        );
+        rangeProofIndiciesArray.push(rangeProofIndicies);
 
         // Fetch the verification method
         const verificationMethod = await this.getVerificationMethod({
@@ -664,6 +802,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       nonce: mergedNonce,
       revealed: revealedTermIndiciesArray,
       equivs: equivsArray
+      // range: rangeProofIndiciesArray
     });
 
     // Set the proof value on the derived proof

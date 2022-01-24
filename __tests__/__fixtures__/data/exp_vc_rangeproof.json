@@ -1,0 +1,35 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://www.zkp-ld.org/bbs-termwise-2021.jsonld",
+    "https://schema.org"
+  ],
+  "id": "http://example.org/credentials/9876",
+  "type": "VerifiableCredential",
+  "issuer": "did:example:issuer2",
+  "issuanceDate": "2021-09-01T00:00:00Z",
+  "expirationDate": "2022-09-01T00:00:00Z",
+  "credentialSubject": {
+    "id": "did:example:cityA",
+    "type": "Place",
+    "name": "City A",
+    "maximumAttendeeCapacity": 10000,
+    "containsPlace": [
+      {
+        "type": "Place",
+        "name": "Area A1",
+        "maximumAttendeeCapacity": 1000
+      },
+      {
+        "type": "Place",
+        "name": "Area A2",
+        "maximumAttendeeCapacity": 3000
+      },
+      {
+        "type": "Place",
+        "name": "Area A3",
+        "maximumAttendeeCapacity": 6000
+      }
+    ]
+  }
+}
