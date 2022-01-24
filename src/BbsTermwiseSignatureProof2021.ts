@@ -337,58 +337,38 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
   /**
    * Calculate revealed indicies
    *
-   * @param skolemizedDocumentStatements full document statements
-   * @param revealedDocumentStatements revealed document statements
-   * @param proofStatements proof statements
+   * @param fullStatements full document statements
+   * @param partialStatements revealed document statements
+   * @param offset offset to index
    *
-   * @returns {[number[], number[]]} a pair of revealed statementwise indicies and revealed termwise indicies
+   * @returns {number[]} revealed statementwise indicies
    */
   getIndicies(
-    skolemizedDocumentStatements: Statement[],
-    revealedDocumentStatements: Statement[],
-    proofStatements: Statement[]
-  ): [number[], number[]] {
-    // Get the indicies of the revealed statements from the transformed input document offset
-    // by the number of proof statements
-    const numberOfProofStatements = proofStatements.length;
-
-    // Always reveal all the statements associated to the original proof
-    // these are always the first statements in the normalized form
-    const proofRevealedIndicies = Array.from(
-      Array(numberOfProofStatements).keys()
-    );
-
+    fullStatements: Statement[],
+    partialStatements: Statement[],
+    offset: number
+  ): number[] {
     // Reveal the statements indicated from the reveal document
-    const documentRevealedIndicies = revealedDocumentStatements.map((key) => {
-      const idx = skolemizedDocumentStatements.findIndex(
-        (e) => e.toString() === key.toString()
+    const preDocumentRevealedIndicies = partialStatements.map((x) =>
+      fullStatements.findIndex((y) => x.toString() === y.toString())
       );
-      if (idx === -1) {
+    if (preDocumentRevealedIndicies.includes(-1)) {
         throw new Error(
           "Some statements in the reveal document not found in original proof"
         );
       }
-      return idx + numberOfProofStatements;
-    });
+    const documentRevealedIndicies = preDocumentRevealedIndicies.map(
+      (idx) => idx + offset
+    );
 
     // Check there is not a mismatch
-    if (documentRevealedIndicies.length !== revealedDocumentStatements.length) {
+    if (documentRevealedIndicies.length !== partialStatements.length) {
       throw new Error(
         "Some statements in the reveal document not found in original proof"
       );
     }
 
-    // Combine all indicies to get the resulting list of revealed indicies
-    const revealedStatementIndicies = proofRevealedIndicies.concat(
-      documentRevealedIndicies
-    );
-
-    // Calculate termwise indicies
-    const revealedTermIndicies = this.statementIndiciesToTermIndicies(
-      revealedStatementIndicies
-    );
-
-    return [revealedStatementIndicies, revealedTermIndicies];
+    return documentRevealedIndicies;
   }
 
   /**
@@ -652,16 +632,25 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         );
         revealedStatementsArray.push(revealedStatements);
 
-        // Calculate revealed indicies
-        // - statement indicies: embedded in the derived proof to be passed to the Verifier;
-        // - term indicies: input to blsCreateProof to generate zkproof
-        const [revealedStatementIndicies, revealedTermIndicies] =
+        // Calculate revealed statement indicies
+        //   to be embedded in the derived proof to be passed to the Verifier
+        const revealedProofStatementIndicies = Array.from(
+          Array(proofStatements.length).keys()
+        );
+        const revealedStatementIndicies = revealedProofStatementIndicies.concat(
           this.getIndicies(
             anonymizedStatements,
             revealedStatements,
-            proofStatements
+            proofStatements.length
+          )
           );
         revealedStatementIndiciesArray.push(revealedStatementIndicies);
+
+        // Calculate revealed term indicies
+        //   to be input to blsCreateProof to generate zkproof
+        const revealedTermIndicies = this.statementIndiciesToTermIndicies(
+          revealedStatementIndicies
+        );
         revealedTermIndiciesArray.push(revealedTermIndicies);
 
         // Push each term index of hidden URIs that are not removed by revealing process (JSON-LD framing)
