@@ -16,11 +16,10 @@ import {
   CanonicalizeOptions,
   RevealOptions,
   RevealResult,
-  TermwiseCanonicalizeResult,
+  CanonicalizeResult,
   DeriveProofMultiOptions,
   VerifyProofMultiOptions,
   VerifyProofMultiResult,
-  TermwiseSkolemizeResult,
   DeriveProofOptions,
   VerifyProofOptions,
   VerifyProofResult
@@ -269,13 +268,13 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    * @param proof to canonicalize
    * @param options to create verify data
    *
-   * @returns {Promise<TermwiseCanonicalizeResult>} canonicalized statements
+   * @returns {Promise<CanonicalizeResult>} canonicalized statements
    */
   async canonicalize(
     document: string,
     proof: string,
     options: CanonicalizeOptions
-  ): Promise<TermwiseCanonicalizeResult> {
+  ): Promise<CanonicalizeResult> {
     const { suite, documentLoader, expansionMap, skipProofCompaction } =
       options;
 
@@ -298,51 +297,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     );
 
     return { documentStatements, proofStatements };
-  }
-
-  /**
-   * Name all the blank nodes
-   *
-   * @param documentStatements to skolemize
-   *
-   * @returns {Promise<TermwiseSkolemizeResult>} skolemized JSON-LD document and statements
-   */
-  async skolemize(
-    documentStatements: Statement[],
-    auxilliaryIndex?: number
-  ): Promise<TermwiseSkolemizeResult> {
-    // Transform any blank node identifiers for the input
-    // document statements into actual node identifiers
-    // e.g., _:c14n0 => <urn:bnid:_:c14n0>
-    const skolemizedDocumentStatements = documentStatements.map((element) =>
-      element.skolemize(auxilliaryIndex)
-    );
-
-    // Transform the resulting RDF statements back into JSON-LD
-    const skolemizedDocument: string = await jsonld.fromRDF(
-      skolemizedDocumentStatements.join("\n")
-    );
-
-    return { skolemizedDocument, skolemizedDocumentStatements };
-  }
-
-  /**
-   * Unname all the blank nodes
-   *
-   * @param documentStatements to deskolemize
-   *
-   * @returns {Promise<DeskolemizeResult>} deskolemized JSON-LD document and statements
-   */
-  async deskolemize(
-    skolemizedDocumentStatements: Statement[]
-  ): Promise<Statement[]> {
-    // Transform the blank node identifier placeholders for the document statements
-    // back into actual blank node identifiers
-    // e.g., <urn:bnid:_:c14n0> => _:c14n0
-    const documentStatements = skolemizedDocumentStatements.map((element) =>
-      element.deskolemize()
-    );
-    return documentStatements;
   }
 
   /**
@@ -569,11 +523,16 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           compactProof: !skipProofCompaction
         });
 
-      // Skolemize: name all the blank nodes
+      // Skolemize: transform any blank node identifiers for the input
+      // document statements into actual node identifiers
       // e.g., _:c14n0 -> urn:bnid:<docIndex>:_:c14n0
       // where <docIndex> corresponds to the index of document in inputDocuments array
-      const { skolemizedDocument, skolemizedDocumentStatements } =
-        await this.skolemize(documentStatements, docIndex);
+      const skolemizedDocumentStatements = documentStatements.map((element) =>
+        element.skolemize(docIndex)
+      );
+      const skolemizedDocument: string = await jsonld.fromRDF(
+        skolemizedDocumentStatements.join("\n")
+      );
 
       // Prepare an equivalence class for each blank node identifier
       const skolemizedDocumentTerms = skolemizedDocumentStatements.flatMap(

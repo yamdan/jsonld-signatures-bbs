@@ -46,39 +46,6 @@ export interface CanonicalizeResult {
   proofStatements: Statement[];
 }
 
-export interface TermwiseCanonicalizeResult {
-  /**
-   * document statements (array of quads)
-   */
-  documentStatements: Statement[];
-  /**
-   * proof statements (array of quads)
-   */
-  proofStatements: Statement[];
-}
-
-export interface SkolemizeResult {
-  /**
-   * Skolemized document (JSON-LD)
-   */
-  skolemizedDocument: string;
-  /**
-   * Skolemized document (array of quads)
-   */
-  skolemizedDocumentStatements: Statement[];
-}
-
-export interface TermwiseSkolemizeResult {
-  /**
-   * Skolemized document (JSON-LD)
-   */
-  skolemizedDocument: string;
-  /**
-   * Skolemized document (array of quads)
-   */
-  skolemizedDocumentStatements: Statement[];
-}
-
 export interface RevealOptions {
   /**
    * The signature suite
