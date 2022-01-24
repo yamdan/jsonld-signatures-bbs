@@ -527,21 +527,18 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       // document statements into actual node identifiers
       // e.g., _:c14n0 -> urn:bnid:<docIndex>:_:c14n0
       // where <docIndex> corresponds to the index of document in inputDocuments array
-      const skolemizedDocumentStatements = documentStatements.map((element) =>
+      const skolemizedStatements = documentStatements.map((element) =>
         element.skolemize(docIndex)
       );
       const skolemizedDocument: string = await jsonld.fromRDF(
-        skolemizedDocumentStatements.join("\n")
+        skolemizedStatements.join("\n")
       );
 
       // Prepare an equivalence class for each blank node identifier
-      const skolemizedDocumentTerms = skolemizedDocumentStatements.flatMap(
-        (item: Statement) => item.toTerms()
-      );
       new Set(
-        skolemizedDocumentTerms.filter((term) =>
-          term.match(/^<urn:bnid:[0-9]+:_:c14n[0-9]+>$/)
-        )
+        skolemizedStatements
+          .flatMap((item: Statement) => item.toTerms())
+          .filter((term) => term.match(/^<urn:bnid:[0-9]+:_:c14n[0-9]+>$/))
       ).forEach((skolemizedBnid) => {
         equivs.set(skolemizedBnid, [uuidv4(), []]);
       });
@@ -596,8 +593,8 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
 
       // Prepare anonymizedStatements: N-Quads statements
       // where each specified URI and bnid is replaced by anonymous ID, i.e., urn:anon:<UUIDv4>
-      const anonymizedStatements = skolemizedDocumentStatements.map(
-        (s: Statement) => anonymizer.anonymizeStatement(s)
+      const anonymizedStatements = skolemizedStatements.map((s: Statement) =>
+        anonymizer.anonymizeStatement(s)
       );
       const revealedDocument = anonymizer.anonymizeJsonld(preRevealedDocument);
       revealedDocuments.push(revealedDocument);
@@ -667,15 +664,15 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
 
         // Push each term index of hidden URIs that are not removed by revealing process (JSON-LD framing)
         // to equivalence class
-        const skolemizedTerms = proofStatements
-          .concat(skolemizedDocumentStatements)
-          .flatMap((item: Statement) => item.toTerms());
-        skolemizedTerms.forEach((term, termIndex) => {
-          if (equivs.has(term) && revealedTermIndicies.includes(termIndex)) {
-            const e = equivs.get(term) as [string, [number, number][]];
-            e[1].push([proofIndex + proofIndexOffset[docIndex], termIndex]);
-          }
-        });
+        proofStatements
+          .concat(skolemizedStatements)
+          .flatMap((item: Statement) => item.toTerms())
+          .forEach((term, termIndex) => {
+            if (equivs.has(term) && revealedTermIndicies.includes(termIndex)) {
+              const e = equivs.get(term) as [string, [number, number][]];
+              e[1].push([proofIndex + proofIndexOffset[docIndex], termIndex]);
+            }
+          });
 
         // Fetch the verification method
         const verificationMethod = await this.getVerificationMethod({
