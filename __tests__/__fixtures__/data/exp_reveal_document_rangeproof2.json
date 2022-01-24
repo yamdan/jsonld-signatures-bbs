@@ -10,10 +10,6 @@
   "credentialSubject": {
     "type": "Place",
     "@explicit": true,
-    "maximumAttendeeCapacity": { "range": [4000, 6000] },
-    "containsPlace": {
-      "maximumAttendeeCapacity": { "range": [1000, 5000] }
-    },
-    "containedInPlace": {}
+    "area": { "range": [10000, 50000] }
   }
 }

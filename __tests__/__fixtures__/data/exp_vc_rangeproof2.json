@@ -1,0 +1,18 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://www.zkp-ld.org/bbs-termwise-2021.jsonld",
+    "https://schema.org"
+  ],
+  "id": "https://example.org/credentials/abcdefgh",
+  "type": "VerifiableCredential",
+  "issuer": "did:example:issuer2",
+  "issuanceDate": "2021-01-01T00:00:00Z",
+  "expirationDate": "2022-01-01T00:00:00Z",
+  "credentialSubject": {
+    "id": "https://example.org/area1",
+    "type": "Place",
+    "name": "Area 1",
+    "area": 30000
+  }
+}

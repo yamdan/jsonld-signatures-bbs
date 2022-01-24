@@ -4,32 +4,30 @@
     "https://www.zkp-ld.org/bbs-termwise-2021.jsonld",
     "https://schema.org"
   ],
-  "id": "http://example.org/credentials/9876",
+  "id": "https://example.org/credentials/12345678",
   "type": "VerifiableCredential",
-  "issuer": "did:example:issuer2",
+  "issuer": "did:example:issuer1",
   "issuanceDate": "2021-09-01T00:00:00Z",
   "expirationDate": "2022-09-01T00:00:00Z",
   "credentialSubject": {
-    "id": "did:example:cityA",
+    "id": "https://example.org/cityA",
     "type": "Place",
     "name": "City A",
-    "maximumAttendeeCapacity": 10000,
+    "maximumAttendeeCapacity": 5000,
     "containsPlace": [
       {
         "type": "Place",
-        "name": "Area A1",
+        "name": "Town A1",
         "maximumAttendeeCapacity": 1000
       },
       {
         "type": "Place",
-        "name": "Area A2",
+        "name": "Town A2",
         "maximumAttendeeCapacity": 3000
-      },
-      {
-        "type": "Place",
-        "name": "Area A3",
-        "maximumAttendeeCapacity": 6000
       }
-    ]
+    ],
+    "containedInPlace": {
+      "id": "https://example.org/area1"
+    }
   }
 }

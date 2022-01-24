@@ -56,7 +56,9 @@ import expRevealDocument from "./data/exp_reveal_document.json";
 import expRevealDocument2 from "./data/exp_reveal_document2.json";
 import expRevealDocument3 from "./data/exp_reveal_document3.json";
 import expVCDocumentForRangeProof from "./data/exp_vc_rangeproof.json";
+import expVCDocumentForRangeProof2 from "./data/exp_vc_rangeproof2.json";
 import expRevealDocumentForRangeProof from "./data/exp_reveal_document_rangeproof.json";
+import expRevealDocumentForRangeProof2 from "./data/exp_reveal_document_rangeproof2.json";
 
 export {
   exampleBls12381KeyPair,
@@ -103,5 +105,7 @@ export {
   testAnonymousVcComplexDocument,
   testRevealAnonymousVcComplexDocument,
   expVCDocumentForRangeProof,
-  expRevealDocumentForRangeProof
+  expVCDocumentForRangeProof2,
+  expRevealDocumentForRangeProof,
+  expRevealDocumentForRangeProof2
 };
