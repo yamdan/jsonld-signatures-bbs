@@ -378,7 +378,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    * @param partialStatements revealed document statements
    * @param offset offset to index
    *
-   * @returns {number[]} revealed statementwise indicies
+   * @returns {Promise<[number, number, number][]>} term-index, min, max to be applied to range proofs
    */
   async getRangeProofIndicies(
     revealDocument: any,
@@ -388,7 +388,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     suite: any,
     documentLoader: any,
     expansionMap: any
-  ): Promise<[number[], [number, number]][]> {
+  ): Promise<[number, number, number][]> {
     const expandedRevealDocument = await jsonld.expand(revealDocument, {
       documentLoader
     });
@@ -452,41 +452,39 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     );
 
     // extract statements corresponding to range-proof parts using above JSON-LD frames
-    const indiciesAndRange = await Promise.all(
-      rangeReveals.map(
-        async ([frame, pred, range]): Promise<[number[], [number, number]]> => {
-          // Frame the result to create the reveal document result
-          const revealedDocument = await jsonld.frame(
-            anonymizedDocument,
-            frame,
-            { documentLoader }
-          );
+    return (
+      await Promise.all(
+        rangeReveals.map(
+          async ([frame, pred, range]): Promise<[number, number, number][]> => {
+            // Frame the result to create the reveal document result
+            const revealedDocument = await jsonld.frame(
+              anonymizedDocument,
+              frame,
+              { documentLoader }
+            );
 
-          // Canonicalize the resulting reveal document
-          const statements: Statement[] = await suite.createVerifyDocumentData(
-            revealedDocument,
-            {
-              documentLoader,
-              expansionMap
-            }
-          );
+            // Canonicalize the resulting reveal document
+            const statements: Statement[] =
+              await suite.createVerifyDocumentData(revealedDocument, {
+                documentLoader,
+                expansionMap
+              });
 
-          const statementIndicies = this.getIndicies(
-            anonymizedStatements,
-            statements.filter((s) => s.predicate.value === pred),
-            proofStatementLen
-          );
-          return [statementIndicies, range];
-        }
+            const statementIndicies = this.getIndicies(
+              anonymizedStatements,
+              statements.filter((s) => s.predicate.value === pred),
+              proofStatementLen
+            );
+
+            return statementIndicies.map((idx) => [
+              idx * NUM_OF_TERMS_IN_STATEMENT + 2, // get object term index from statement index
+              range[0], // min
+              range[1] // max
+            ]);
+          }
+        )
       )
-    );
-
-    return indiciesAndRange.map(
-      ([indicies, range]): [number[], [number, number]] => [
-        indicies.map((i) => i * NUM_OF_TERMS_IN_STATEMENT + 2), // statement idx -> object term idx
-        range
-      ]
-    );
+    ).flat();
   }
 
   /**
@@ -556,7 +554,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     const revealedDocuments: any = [];
     const derivedProofs: any = [];
     const revealedStatementsArray: Statement[][] = [];
-    const rangeProofIndiciesArray: [number[], [number, number]][][] = [];
+    const rangeProofIndiciesArray: [number, number, number][][] = [];
 
     const equivs: Map<string, [string, [number, number][]]> = new Map(
       hiddenUris.map((uri) => [`<${uri}>`, [uuidv4(), []]])
@@ -801,8 +799,8 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       messages: termsArray,
       nonce: mergedNonce,
       revealed: revealedTermIndiciesArray,
-      equivs: equivsArray
-      // range: rangeProofIndiciesArray
+      equivs: equivsArray,
+      range: rangeProofIndiciesArray
     });
 
     // Set the proof value on the derived proof
