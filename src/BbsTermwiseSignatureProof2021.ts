@@ -368,93 +368,151 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
   }
 
   /**
+   * Identify JSON paths to range indicator in reveal document (JSON-LD frame) such that:
+   *   [
+   *     [ "https://www.w3.org/2018/credentials#credentialSubject",
+   *       "http://schema.org/containsPlace",
+   *       "http://schema.org/maximumAttendeeCapacity",
+   *       "", 1000, 5000 ],
+   *     [ "https://www.w3.org/2018/credentials#credentialSubject",
+   *       "http://schema.org/maximumAttendeeCapacity",
+   *       "", 4000, 6000 ]
+   *   ]
+   *
+   * @param frame expanded JSON-LD frame
+   * @param path initial path
+   *
+   * @returns {(string | number)[][]} JSON paths to range indicator in reveal document (JSON-LD frame)
+   */
+  getRangePaths(frame: any, path: (string | number)[]): (string | number)[][] {
+    const res: (string | number)[][] = [];
+
+    if (!Array.isArray(frame)) return [];
+
+    for (let i = 0; i < frame.length; i++) {
+      if (typeof frame[i] !== "object") continue;
+
+      for (const [k, v] of Object.entries(frame[i])) {
+        if (k === KEY_FOR_RANGEPROOF) {
+          if (!Array.isArray(v)) return [];
+          // add delimiter to path
+          path.push("");
+          // add min and max to path
+          for (const rv of v) {
+            path.push(rv["@value"]);
+          }
+          res.push(path);
+        } else if (Array.isArray(v)) {
+          res.push(...this.getRangePaths(v, path.concat(k)));
+        }
+        // if (typeof v === "string" && v.startsWith(KEY_FOR_RANGEPROOF)) {
+        //   const range = v.slice(KEY_FOR_RANGEPROOF.length);
+        //   const match = range.match(/(\[|\() *(\d*) *, *(\d*) *(\]|\))/);
+        //   if (match) {
+        //     // add delimiter to path
+        //     path.push("");
+        //     // add min
+        //     path.push(match[2]);
+        //     // add max
+        //     path.push(match[3]);
+        //     res.push(path);
+        //   }
+        // } else if (Array.isArray(v)) {
+        //   res.push(...this.getRangePaths(v, path.concat(k)));
+        // }
+      }
+    }
+
+    return res;
+  }
+
+  /**
+   * Overwrite range proof indicators to the revealed document to be shown to the verifier
+   *
+   * @param doc expanded JSON-LD revealed document to be overwritten
+   * @param path path to range proof indicators calculated by getRangePaths()
+   */
+  updateDocWithRange(doc: any, path: (string | number)[]): void {
+    if (!Array.isArray(doc) || path[0] === "") return;
+
+    for (let i = 0; i < doc.length; i++) {
+      if (typeof doc[i] !== "object") continue;
+
+      for (const [k, v] of Object.entries(doc[i])) {
+        if (k === path[0]) {
+          if (!Array.isArray(v)) return;
+
+          if (path[1] === "") {
+            // overwrite a rangeproof part of the revealed document
+            doc[i][k] = {
+              [KEY_FOR_RANGEPROOF]: [path[2], path[3]]
+            };
+          } else {
+            this.updateDocWithRange(v, path.slice(1));
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * Identify term indicies and range to be range-proved
    *
-   * @param revealDocument JSON-LD frame
+   * @param paths paths to range proof indicators in JSON-LD frame
    * @param anonymizedDocument JSON-LD document
    * @param anonymizedStatements N-Quad statements
    * @param proofStatementLen length of proof statements
    * @param suite
-   * @param partialStatements revealed document statements
-   * @param offset offset to index
+   * @param documentLoader
+   * @param expansionMap
    *
    * @returns {Promise<[number, number, number][]>} term-index, min, max to be applied to range proofs
    */
   async getRangeProofIndicies(
-    revealDocument: any,
-    anonymizedDocument: any,
+    paths: (string | number)[][],
     anonymizedStatements: Statement[],
     proofStatementLen: number,
     suite: any,
     documentLoader: any,
     expansionMap: any
   ): Promise<[number, number, number][]> {
-    const expandedRevealDocument = await jsonld.expand(revealDocument, {
-      documentLoader
-    });
-
-    const extractPathToRanges = (
-      arr: any,
-      path: (string | number)[],
-      res: any[]
-    ): any => {
-      if (!Array.isArray(arr)) return null;
-      for (let i = 0; i < arr.length; i++) {
-        for (const [k, v] of Object.entries(arr[i])) {
-          if (k === KEY_FOR_RANGEPROOF) {
-            if (!Array.isArray(v)) return null;
-            path.push("");
-            for (const rv of v) {
-              path.push(rv["@value"]);
-            }
-            res.push(path);
-          } else if (Array.isArray(v)) {
-            extractPathToRanges(v, path.concat(k), res);
-          }
+    const pathToFrame = (
+      path: (string | number)[]
+    ): [any, string, [number, number]] => {
+      const frame: any = {
+        "@explicit": true
+      };
+      let pred: string;
+      let range: [number, number];
+      if (path[1] === "") {
+        if (
+          typeof path[0] !== "string" ||
+          typeof path[2] !== "number" ||
+          typeof path[3] !== "number"
+        ) {
+          throw new Error("invalid reveal document");
         }
+        frame[path[0]] = {};
+        pred = path[0];
+        range = [path[2], path[3]];
+      } else {
+        [frame[path[0]], pred, range] = pathToFrame(path.slice(1));
       }
-      return res;
+      return [frame, pred, range];
     };
 
-    // extract JSON Path from root to @range
-    const pathToRanges = extractPathToRanges(expandedRevealDocument, [], []);
-
     // construct JSON-LD frames to extract each range-proof part
-    const rangeReveals: [any, string, [number, number]][] = pathToRanges.map(
-      (path: (string | number)[]): [any, string, [number, number]] => {
-        const pathToFrame = (
-          path: (string | number)[]
-        ): [any, string, [number, number]] => {
-          const frame: any = {
-            "@explicit": true
-          };
-          let pred: string;
-          let range: [number, number];
-          if (path[1] === "") {
-            if (
-              typeof path[0] !== "string" ||
-              typeof path[2] !== "number" ||
-              typeof path[3] !== "number"
-            ) {
-              throw new Error("invalid reveal document");
-            }
-            frame[path[0]] = {};
-            pred = path[0];
-            range = [path[2], path[3]];
-          } else {
-            [frame[path[0]], pred, range] = pathToFrame(path.slice(1));
-          }
-          return [frame, pred, range];
-        };
+    const frames = paths.map((path) => pathToFrame(path));
 
-        return pathToFrame(path);
-      }
+    // reconstruct JSON-LD document for framing
+    const anonymizedDocument: string = await jsonld.fromRDF(
+      anonymizedStatements.join("\n")
     );
 
     // extract statements corresponding to range-proof parts using above JSON-LD frames
     return (
       await Promise.all(
-        rangeReveals.map(
+        frames.map(
           async ([frame, pred, range]): Promise<[number, number, number][]> => {
             // Frame the result to create the reveal document result
             const revealedDocument = await jsonld.frame(
@@ -485,6 +543,27 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         )
       )
     ).flat();
+  }
+
+  updateRangesForVerify(doc: any): void {
+    if (!Array.isArray(doc)) return;
+
+    for (let i = 0; i < doc.length; i++) {
+      if (typeof doc[i] !== "object") continue;
+
+      for (const [k, v] of Object.entries(doc[i])) {
+        if (!Array.isArray(v)) continue;
+
+        if (k === KEY_FOR_RANGEPROOF && Array.isArray(v)) {
+          delete doc[i][k];
+          doc[i][
+            "@id"
+          ] = `${KEY_FOR_RANGEPROOF}/${v[0]["@value"]}/${v[1]["@value"]}`;
+        } else {
+          this.updateRangesForVerify(v);
+        }
+      }
+    }
   }
 
   /**
@@ -611,21 +690,56 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       });
 
       // Reveal: extract revealed parts using JSON-LD Framing
-      const preRevealedDocument = await jsonld.frame(
-        skolemizedDocument,
-        revealDocument,
-        { documentLoader }
+      const expandedRevealedDocument = await jsonld.expand(
+        anonymizer.anonymizeJsonld(
+          await jsonld.frame(skolemizedDocument, revealDocument, {
+            documentLoader
+          })
+        ),
+        {
+          documentLoader
+        }
       );
-      const revealedDocument = anonymizer.anonymizeJsonld(preRevealedDocument);
+      // convert value to range in revealed document if range proof is requested
+      const pathsToRanges = this.getRangePaths(
+        await jsonld.expand(revealDocument, {
+          documentLoader
+        }),
+        []
+      );
+      if (pathsToRanges.length > 0) {
+        pathsToRanges.map((path) =>
+          this.updateDocWithRange(expandedRevealedDocument, path)
+        );
+      }
+      // compact document to be revealed to the verifier
+      const revealedDocument = await jsonld.compact(
+        expandedRevealedDocument,
+        revealDocument["@context"],
+        {
+          documentLoader,
+          expansionMap,
+          compactToRelative: false
+        }
+      );
       revealedDocuments.push(revealedDocument);
 
-      // Prepare anonymizedStatements: N-Quads statements
+      // Prepare revealedStatements: N-Quads revealed statements to be verified by verifier
       // where each specified URI and bnid is replaced by anonymous ID, i.e., urn:anon:<UUIDv4>
+      const revealedStatements = await this.createVerifyDocumentData(
+        revealedDocument,
+        {
+          suite,
+          documentLoader,
+          expansionMap,
+          skipProofCompaction
+        }
+      );
+      revealedStatementsArray.push(revealedStatements);
+
+      // Prepare anonymizedStatements to be used later for calculating reveal indicies
       const anonymizedStatements = skolemizedStatements.map((statement) =>
         anonymizer.anonymizeStatement(statement)
-      );
-      const anonymizedDocument: string = await jsonld.fromRDF(
-        anonymizedStatements.join("\n")
       );
 
       // Process multiple proofs in an input document
@@ -666,20 +780,19 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           terms.map((term: string) => new Uint8Array(Buffer.from(term)))
         );
 
-        // Prepare anonymizedRevealedStatements: N-Quads revealed statements to be verified by verifier
-        // where each specified URI and bnid is replaced by anonymous ID, i.e., urn:anon:<UUIDv4>
-        const revealedStatements = await this.createVerifyDocumentData(
-          revealedDocument,
-          {
-            suite,
-            documentLoader,
-            expansionMap,
-            skipProofCompaction
-          }
+        // Identify indicies of terms to be range-proved
+        const rangeProofIndicies = await this.getRangeProofIndicies(
+          pathsToRanges,
+          anonymizedStatements,
+          proofStatements.length,
+          suite,
+          documentLoader,
+          expansionMap
         );
-        revealedStatementsArray.push(revealedStatements);
+        rangeProofIndiciesArray.push(rangeProofIndicies);
 
         // Calculate revealed statement indicies
+        //   by comparing anonymizedStatements and revealedStatements
         //   to be embedded in the derived proof to be passed to the Verifier
         const revealedProofStatementIndicies = Array.from(
           Array(proofStatements.length).keys()
@@ -711,18 +824,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
               e[1].push([proofIndex + proofIndexOffset[docIndex], termIndex]);
             }
           });
-
-        // Identify terms to be proved in range proof
-        const rangeProofIndicies = await this.getRangeProofIndicies(
-          revealDocument,
-          anonymizedDocument,
-          anonymizedStatements,
-          proofStatements.length,
-          suite,
-          documentLoader,
-          expansionMap
-        );
-        rangeProofIndiciesArray.push(rangeProofIndicies);
 
         // Fetch the verification method
         const verificationMethod = await this.getVerificationMethod({
@@ -903,19 +1004,24 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           );
         }
 
+        // Extract and convert range proof indicators
+        const expandedDocument = await jsonld.expand(document, {
+          documentLoader
+        });
+        this.updateRangesForVerify(expandedDocument);
+
         // Canonicalize document: get N-Quads from JSON-LD
         const revealedStatements: Statement[] =
-          await this.createVerifyDocumentData(document, {
+          await this.createVerifyDocumentData(expandedDocument, {
             documentLoader,
             expansionMap
           });
+        // keep document N-Quads statements to calculate challenge hash later
+        revealedStatementsArray.push(revealedStatements);
 
         // Process multiple proofs in an input document
         let proofIndex = 0;
         for (const proof of proofs) {
-          // keep document N-Quads statements per proof to calculate challenge hash later
-          revealedStatementsArray.push(revealedStatements);
-
           if (previous_nonce && proof.nonce !== previous_nonce) {
             throw new Error("all of the nonces must have the same values");
           }
