@@ -12,6 +12,7 @@
     "@explicit": true,
     "maximumAttendeeCapacity": { "range": [4000, 6000] },
     "containsPlace": {
+      "id": "https://example.org/townA2",
       "maximumAttendeeCapacity": { "range": [1000, 5000] }
     },
     "containedInPlace": {}

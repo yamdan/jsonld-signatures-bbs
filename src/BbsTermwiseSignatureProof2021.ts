@@ -23,7 +23,7 @@ import {
   VerifyProofResult
 } from "./types";
 import { BbsTermwiseSignature2021 } from "./BbsTermwiseSignature2021";
-import { Statement } from "./Statement";
+import { Statement, TYPE_NAMED_NODE } from "./Statement";
 import {
   SECURITY_CONTEXT_URLS,
   NUM_OF_TERMS_IN_STATEMENT,
@@ -306,35 +306,28 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    *
    * @param fullStatements full document statements
    * @param partialStatements revealed document statements
-   * @param offset offset to index
    *
    * @returns {number[]} revealed statementwise indicies
    */
   getIndicies(
     fullStatements: Statement[],
-    partialStatements: Statement[],
-    offset: number
+    partialStatements: Statement[]
   ): number[] {
     // Reveal the statements indicated from the reveal document
-    const preDocumentRevealedIndicies = partialStatements.map((x) =>
+    const documentRevealedIndicies = partialStatements.map((x) =>
       fullStatements.findIndex((y) => x.toString() === y.toString())
     );
-    if (preDocumentRevealedIndicies.includes(-1)) {
+    if (documentRevealedIndicies.includes(-1)) {
       throw new Error(
         "Some statements in the reveal document not found in original proof"
       );
     }
-    const documentRevealedIndicies = preDocumentRevealedIndicies.map(
-      (idx) => idx + offset
-    );
-
     // Check there is not a mismatch
     if (documentRevealedIndicies.length !== partialStatements.length) {
       throw new Error(
         "Some statements in the reveal document not found in original proof"
       );
     }
-
     return documentRevealedIndicies;
   }
 
@@ -373,24 +366,31 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    *     [ "https://www.w3.org/2018/credentials#credentialSubject",
    *       "http://schema.org/containsPlace",
    *       "http://schema.org/maximumAttendeeCapacity",
-   *       "", 1000, 5000 ],
+   *       "", 1000, 5000, "http://example.org/townA2" ],
    *     [ "https://www.w3.org/2018/credentials#credentialSubject",
    *       "http://schema.org/maximumAttendeeCapacity",
-   *       "", 4000, 6000 ]
+   *       "", 4000, 6000, "" ]
    *   ]
    *
    * @param frame expanded JSON-LD frame
    * @param path initial path
+   * @param parentID "@id" in upper layer if any
    *
    * @returns {(string | number)[][]} JSON paths to range indicator in reveal document (JSON-LD frame)
    */
-  getRangePaths(frame: any, path: (string | number)[]): (string | number)[][] {
+  getRangePaths(
+    frame: any,
+    path: (string | number)[] = [],
+    parentID = ""
+  ): (string | number)[][] {
     const res: (string | number)[][] = [];
 
     if (!Array.isArray(frame)) return [];
 
     for (let i = 0; i < frame.length; i++) {
       if (typeof frame[i] !== "object") continue;
+
+      const currentID = "@id" in frame[i] ? frame[i]["@id"] : "";
 
       for (const [k, v] of Object.entries(frame[i])) {
         if (k === KEY_FOR_RANGEPROOF) {
@@ -401,25 +401,13 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           for (const rv of v) {
             path.push(rv["@value"]);
           }
+          // add parent @id to path
+          path.push(parentID);
+          // add path to response
           res.push(path);
         } else if (Array.isArray(v)) {
-          res.push(...this.getRangePaths(v, path.concat(k)));
+          res.push(...this.getRangePaths(v, path.concat(k), currentID));
         }
-        // if (typeof v === "string" && v.startsWith(KEY_FOR_RANGEPROOF)) {
-        //   const range = v.slice(KEY_FOR_RANGEPROOF.length);
-        //   const match = range.match(/(\[|\() *(\d*) *, *(\d*) *(\]|\))/);
-        //   if (match) {
-        //     // add delimiter to path
-        //     path.push("");
-        //     // add min
-        //     path.push(match[2]);
-        //     // add max
-        //     path.push(match[3]);
-        //     res.push(path);
-        //   }
-        // } else if (Array.isArray(v)) {
-        //   res.push(...this.getRangePaths(v, path.concat(k)));
-        // }
       }
     }
 
@@ -444,12 +432,38 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
 
           if (path[1] === "") {
             // overwrite a rangeproof part of the revealed document
-            doc[i][k] = {
-              [KEY_FOR_RANGEPROOF]: [path[2], path[3]]
-            };
+            doc[i][k] = [
+              {
+                [KEY_FOR_RANGEPROOF]: [
+                  { "@value": path[2] },
+                  { "@value": path[3] }
+                ]
+              }
+            ];
           } else {
             this.updateDocWithRange(v, path.slice(1));
           }
+        }
+      }
+    }
+  }
+
+  compactRange(doc: any): void {
+    if (!Array.isArray(doc)) return;
+
+    for (let i = 0; i < doc.length; i++) {
+      if (typeof doc[i] !== "object") continue;
+
+      for (const [k, v] of Object.entries(doc[i])) {
+        if (k === KEY_FOR_RANGEPROOF) {
+          if (!Array.isArray(v)) return;
+          // overwrite a rangeproof part of the revealed document
+          doc[i]["@id"] = `${KEY_FOR_RANGEPROOF}${JSON.stringify(
+            v.map((vv) => vv["@value"])
+          )}`;
+          delete doc[i][KEY_FOR_RANGEPROOF];
+        } else {
+          if (Array.isArray(v)) this.compactRange(v);
         }
       }
     }
@@ -461,7 +475,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    * @param paths paths to range proof indicators in JSON-LD frame
    * @param anonymizedDocument JSON-LD document
    * @param anonymizedStatements N-Quad statements
-   * @param proofStatementLen length of proof statements
    * @param suite
    * @param documentLoader
    * @param expansionMap
@@ -471,7 +484,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
   async getRangeProofIndicies(
     paths: (string | number)[][],
     anonymizedStatements: Statement[],
-    proofStatementLen: number,
     suite: any,
     documentLoader: any,
     expansionMap: any
@@ -488,13 +500,15 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         if (
           typeof path[0] !== "string" ||
           typeof path[2] !== "number" ||
-          typeof path[3] !== "number"
+          typeof path[3] !== "number" ||
+          typeof path[4] !== "string"
         ) {
           throw new Error("invalid reveal document");
         }
         frame[path[0]] = {};
         pred = path[0];
         range = [path[2], path[3]];
+        if (path[4] !== "") frame["@id"] = path[4];
       } else {
         [frame[path[0]], pred, range] = pathToFrame(path.slice(1));
       }
@@ -530,8 +544,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
 
             const statementIndicies = this.getIndicies(
               anonymizedStatements,
-              statements.filter((s) => s.predicate.value === pred),
-              proofStatementLen
+              statements.filter((s) => s.predicate.value === pred)
             );
 
             return statementIndicies.map((idx) => [
@@ -543,27 +556,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         )
       )
     ).flat();
-  }
-
-  updateRangesForVerify(doc: any): void {
-    if (!Array.isArray(doc)) return;
-
-    for (let i = 0; i < doc.length; i++) {
-      if (typeof doc[i] !== "object") continue;
-
-      for (const [k, v] of Object.entries(doc[i])) {
-        if (!Array.isArray(v)) continue;
-
-        if (k === KEY_FOR_RANGEPROOF && Array.isArray(v)) {
-          delete doc[i][k];
-          doc[i][
-            "@id"
-          ] = `${KEY_FOR_RANGEPROOF}/${v[0]["@value"]}/${v[1]["@value"]}`;
-        } else {
-          this.updateRangesForVerify(v);
-        }
-      }
-    }
   }
 
   /**
@@ -626,7 +618,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     const nonce = givenNonce || randomBytes(50);
 
     const termsArray: Uint8Array[][] = [];
-    const revealedStatementIndiciesArray: number[][] = [];
+    const revealedIndiciesArray: number[][] = [];
     const revealedTermIndiciesArray: number[][] = [];
     const issuerPublicKeyArray: Buffer[] = [];
     const signatureArray: Buffer[] = [];
@@ -661,7 +653,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       // Initialize the signature suite
       const suite = new this.Suite();
 
-      // Canonicalize document: get N-Quads from JSON-LD
+      // Canonicalize: get N-Quads from JSON-LD
       const documentStatements: Statement[] =
         await suite.createVerifyDocumentData(document, {
           documentLoader,
@@ -680,7 +672,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         skolemizedStatements.join("\n")
       );
 
-      // Prepare an equivalence class for each blank node identifier
+      // Prepare an equivalence class (equivs) for each blank node identifier
       new Set(
         skolemizedStatements
           .flatMap((item: Statement) => item.toTerms())
@@ -700,19 +692,16 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           documentLoader
         }
       );
-      // convert value to range in revealed document if range proof is requested
       const pathsToRanges = this.getRangePaths(
         await jsonld.expand(revealDocument, {
           documentLoader
-        }),
-        []
+        })
       );
       if (pathsToRanges.length > 0) {
         pathsToRanges.map((path) =>
           this.updateDocWithRange(expandedRevealedDocument, path)
         );
       }
-      // compact document to be revealed to the verifier
       const revealedDocument = await jsonld.compact(
         expandedRevealedDocument,
         revealDocument["@context"],
@@ -724,10 +713,34 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       );
       revealedDocuments.push(revealedDocument);
 
-      // Prepare revealedStatements: N-Quads revealed statements to be verified by verifier
+      // Prepare anonymized statements
+      const anonymizedStatements = skolemizedStatements.map((statement) =>
+        anonymizer.anonymizeStatement(statement)
+      );
+
+      // Get range-proved term indicies
+      const rangeProofIndicies = await this.getRangeProofIndicies(
+        pathsToRanges,
+        anonymizedStatements,
+        suite,
+        documentLoader,
+        expansionMap
+      );
+
+      // Update anonymized statements using range proof indicators
+      for (const [idx, min, max] of rangeProofIndicies) {
+        const statementIdx = (idx - 2) / NUM_OF_TERMS_IN_STATEMENT;
+        anonymizedStatements[
+          statementIdx
+        ].object.value = `${KEY_FOR_RANGEPROOF}${JSON.stringify([min, max])}`;
+        anonymizedStatements[statementIdx].object.termType = TYPE_NAMED_NODE;
+      }
+
+      // Prepare revealed statements: N-Quads revealed statements to be verified by verifier
       // where each specified URI and bnid is replaced by anonymous ID, i.e., urn:anon:<UUIDv4>
+      this.compactRange(expandedRevealedDocument); // update
       const revealedStatements = await this.createVerifyDocumentData(
-        revealedDocument,
+        expandedRevealedDocument,
         {
           suite,
           documentLoader,
@@ -735,14 +748,15 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           skipProofCompaction
         }
       );
-      revealedStatementsArray.push(revealedStatements);
+      revealedStatementsArray.push(revealedStatements); // for challenge hash
 
-      // Prepare anonymizedStatements to be used later for calculating reveal indicies
-      const anonymizedStatements = skolemizedStatements.map((statement) =>
-        anonymizer.anonymizeStatement(statement)
+      // Get revealed indicies by comparing two statements
+      const preRevealedIndicies = this.getIndicies(
+        anonymizedStatements,
+        revealedStatements
       );
 
-      // Process multiple proofs in an input document
+      // Proof-wise processes
       let proofIndex = 0;
       for (const proof of proofs) {
         // Validate that the input proof document has a proof compatible with this suite
@@ -780,37 +794,18 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           terms.map((term: string) => new Uint8Array(Buffer.from(term)))
         );
 
-        // Identify indicies of terms to be range-proved
-        const rangeProofIndicies = await this.getRangeProofIndicies(
-          pathsToRanges,
-          anonymizedStatements,
-          proofStatements.length,
-          suite,
-          documentLoader,
-          expansionMap
-        );
-        rangeProofIndiciesArray.push(rangeProofIndicies);
-
-        // Calculate revealed statement indicies
-        //   by comparing anonymizedStatements and revealedStatements
-        //   to be embedded in the derived proof to be passed to the Verifier
-        const revealedProofStatementIndicies = Array.from(
+        // Finalize revealed indicies
+        const revealedIndicies = Array.from(
           Array(proofStatements.length).keys()
+        ).concat(
+          preRevealedIndicies.map((idx) => idx + proofStatements.length)
         );
-        const revealedStatementIndicies = revealedProofStatementIndicies.concat(
-          this.getIndicies(
-            anonymizedStatements,
-            revealedStatements,
-            proofStatements.length
-          )
-        );
-        revealedStatementIndiciesArray.push(revealedStatementIndicies);
+        revealedIndiciesArray.push(revealedIndicies);
 
         // Calculate revealed term indicies
         //   to be input to blsCreateProof to generate zkproof
-        const revealedTermIndicies = this.statementIndiciesToTermIndicies(
-          revealedStatementIndicies
-        );
+        const revealedTermIndicies =
+          this.statementIndiciesToTermIndicies(revealedIndicies);
         revealedTermIndiciesArray.push(revealedTermIndicies);
 
         // Push each term index of hidden URIs that are not removed by revealing process (JSON-LD framing)
@@ -824,6 +819,17 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
               e[1].push([proofIndex + proofIndexOffset[docIndex], termIndex]);
             }
           });
+
+        // Add proof statements length to rangeproof indicies
+        rangeProofIndiciesArray.push(
+          rangeProofIndicies
+            .filter(([idx]) => revealedTermIndicies.includes(idx))
+            .map(([idx, min, max]) => [
+              idx + proofStatements.length * NUM_OF_TERMS_IN_STATEMENT,
+              min,
+              max
+            ])
+        );
 
         // Fetch the verification method
         const verificationMethod = await this.getVerificationMethod({
@@ -866,9 +872,8 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         derivedProof.nonce = Buffer.from(nonce).toString("base64");
         // Embed the revealed statement indicies into the head of proofValue
         derivedProof.proofValue =
-          Buffer.from(JSON.stringify(revealedStatementIndicies)).toString(
-            "base64"
-          ) + ".";
+          Buffer.from(JSON.stringify(revealedIndicies)).toString("base64") +
+          ".";
         derivedProofs.push(derivedProof);
 
         proofIndex++;
@@ -978,6 +983,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     const equivs: Map<string, [number, number][]> = new Map();
     const revealedStatementsArray: Statement[][] = [];
     const revealedTermIndiciesArray: number[][] = [];
+    const rangeProofIndiciesArray: [number, number, number][][] = [];
 
     const anonymizer = new URIAnonymizer();
 
@@ -1008,7 +1014,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         const expandedDocument = await jsonld.expand(document, {
           documentLoader
         });
-        this.updateRangesForVerify(expandedDocument);
+        this.compactRange(expandedDocument);
 
         // Canonicalize document: get N-Quads from JSON-LD
         const revealedStatements: Statement[] =
@@ -1095,6 +1101,26 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
             }
           });
 
+          // extract range proof indicators
+          const rangeProofIndicies: [number, number, number][] = terms
+            .map((term, termIndex): [string, number] => [term, termIndex])
+            .filter(([term]) => term.startsWith(`<${KEY_FOR_RANGEPROOF}`))
+            .map(([term, termIndex]) => {
+              const matched = term
+                .slice(KEY_FOR_RANGEPROOF.length + 1)
+                .match(/(\[|\() *(\d*) *, *(\d*) *(\]|\))/);
+              if (!matched || matched.length < 5) {
+                throw new Error("invalid range proofs");
+              }
+              const min_eq = matched[1] === "[";
+              const min = parseInt(matched[2]);
+              const max = parseInt(matched[3]);
+              const max_eq = matched[4] === "]";
+              const originalIndex = revealedTermIndicies[termIndex];
+              return [originalIndex, min, max];
+            });
+          rangeProofIndiciesArray.push(rangeProofIndicies);
+
           // Fetch the verification method
           const verificationMethod = await this.getVerificationMethod({
             proof,
@@ -1152,7 +1178,8 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         messages: messagesArray,
         nonce: mergedNonce,
         revealed: revealedTermIndiciesArray,
-        equivs: equivsArray
+        equivs: equivsArray,
+        range: rangeProofIndiciesArray
       });
 
       return verified;

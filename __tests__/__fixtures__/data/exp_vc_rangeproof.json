@@ -16,14 +16,16 @@
     "maximumAttendeeCapacity": 5000,
     "containsPlace": [
       {
+        "id": "https://example.org/townA1",
         "type": "Place",
         "name": "Town A1",
         "maximumAttendeeCapacity": 1000
       },
       {
+        "id": "https://example.org/townA2",
         "type": "Place",
         "name": "Town A2",
-        "maximumAttendeeCapacity": 3000
+        "maximumAttendeeCapacity": [3000, 9000]
       }
     ],
     "containedInPlace": {

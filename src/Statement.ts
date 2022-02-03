@@ -12,8 +12,8 @@ const NQuads = rdfCanonize.NQuads;
 const RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 const RDF_LANGSTRING = RDF + "langString";
 const XSD_STRING = "http://www.w3.org/2001/XMLSchema#string";
-const TYPE_NAMED_NODE = "NamedNode";
-const TYPE_BLANK_NODE = "BlankNode";
+export const TYPE_NAMED_NODE = "NamedNode";
+export const TYPE_BLANK_NODE = "BlankNode";
 
 export type RDFTerm = {
   termType: string;
