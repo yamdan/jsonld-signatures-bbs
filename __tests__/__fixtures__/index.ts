@@ -50,6 +50,7 @@ import expExampleBls12381KeyPair3 from "./data/exp_exampleBls12381KeyPair3.json"
 import expVCDocument from "./data/exp_vc.json";
 import expVCDocument2 from "./data/exp_vc2.json";
 import expVCDocument3 from "./data/exp_vc3.json";
+import expVCDocumentWithArray from "./data/exp_vc_with_array.json";
 import expRevealDocument from "./data/exp_reveal_document.json";
 import expRevealDocument2 from "./data/exp_reveal_document2.json";
 import expRevealDocument3 from "./data/exp_reveal_document3.json";
@@ -95,6 +96,7 @@ export {
   expVCDocument,
   expVCDocument2,
   expVCDocument3,
+  expVCDocumentWithArray,
   expRevealDocument,
   expRevealDocument2,
   expRevealDocument3,

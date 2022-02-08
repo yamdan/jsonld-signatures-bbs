@@ -7,6 +7,7 @@ import {
   expVCDocument,
   expVCDocument2,
   expVCDocument3,
+  expVCDocumentWithArray,
   expRevealDocument,
   expRevealDocument2,
   expRevealDocument3,
@@ -331,5 +332,22 @@ describe("BbsTermwise2021 and BbsTermwiseSignature2021", () => {
     expect(result).toBeDefined();
     expect(result.proof.length).toBe(2);
     expect(derivedProofVerified.verified).toBeTruthy();
+  });
+
+  it("should sign and verify a VC with array, then derive and verify a proof from it", async () => {
+    const vc = { ...expVCDocumentWithArray };
+    const hiddenUris = [
+      "http://example.org/credentials/1234",
+      "did:example:cityA",
+      "did:example:cityB"
+    ];
+
+    await signDeriveVerifyMulti(
+      [{ vc, revealDocument: expRevealDocument, key: expKey1 }],
+      hiddenUris,
+      customLoader,
+      BbsTermwiseSignature2021,
+      BbsTermwiseSignatureProof2021
+    );
   });
 });
