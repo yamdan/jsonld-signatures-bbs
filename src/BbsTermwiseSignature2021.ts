@@ -155,7 +155,7 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
         expansionMap,
         compactProof
       })
-    ).flatMap((item: Statement) => item.serialize());
+    ).flatMap((statement) => statement.serialize());
 
     // sign data
     proof = await this.sign({
@@ -188,7 +188,7 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
           expansionMap,
           compactProof: false
         })
-      ).flatMap((item: Statement) => item.serialize());
+      ).flatMap((statement) => statement.serialize());
 
       // fetch verification method
       const verificationMethod = await this.getVerificationMethod({

@@ -787,12 +787,8 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         );
 
         // Concat proof and document to get terms to be signed
-        const terms = proofStatements
-          .concat(documentStatements)
-          .flatMap((item: Statement) => item.toTerms());
-        termsArray.push(
-          terms.map((term: string) => new Uint8Array(Buffer.from(term)))
-        );
+        const statements = proofStatements.concat(documentStatements);
+        termsArray.push(statements.flatMap((s) => s.serialize()));
 
         // Finalize revealed indicies
         const revealedIndicies = Array.from(
@@ -812,7 +808,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         // to equivalence class
         proofStatements
           .concat(skolemizedStatements)
-          .flatMap((item: Statement) => item.toTerms())
+          .flatMap((statement) => statement.toTerms())
           .forEach((term, termIndex) => {
             if (equivs.has(term) && revealedTermIndicies.includes(termIndex)) {
               const e = equivs.get(term) as [string, [number, number][]];
@@ -1078,15 +1074,9 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
             ])
             .sort(([termIndexA], [termIndexB]) => termIndexA - termIndexB)
             .map(([, statement]) => statement);
+          messagesArray.push(reorderedStatements.flatMap((s) => s.serialize()));
 
-          // concat proof and document to be verified
-          const terms = reorderedStatements.flatMap((item: Statement) =>
-            item.toTerms()
-          );
-
-          messagesArray.push(
-            terms.map((term: string) => new Uint8Array(Buffer.from(term)))
-          );
+          const terms = reorderedStatements.flatMap((s) => s.toTerms());
 
           // extract blinding indicies from anonIDs
           terms.forEach((term, termIndex) => {
