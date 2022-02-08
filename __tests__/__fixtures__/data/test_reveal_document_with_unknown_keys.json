@@ -1,0 +1,11 @@
+{
+  "@context": [
+    "https://schema.org",
+    "https://www.zkp-ld.org/bbs-termwise-2021.jsonld"
+  ],
+  "@type": "Person",
+  "@explicit": true,
+  "firstName": "Jane",
+  "lastName": "FOOBAR",
+  "foobar": {}
+}

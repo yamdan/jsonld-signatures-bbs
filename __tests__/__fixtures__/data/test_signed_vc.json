@@ -28,9 +28,9 @@
   },
   "proof": {
     "type": "BbsTermwiseSignature2021",
-    "created": "2021-10-11T20:51:04Z",
+    "created": "2022-02-05T05:57:58Z",
     "verificationMethod": "did:example:489398593#test",
     "proofPurpose": "assertionMethod",
-    "proofValue": "gx3MY0mQvGTQou0z+yk3W+8cLHg68a0JcUOjJSl24OtZcWKjbDZmZkqPXyN2mm3EYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
+    "proofValue": "l3rYAbmMtN/0FXYyLT53inlFJCD6c022tBm2T2zrgdUpiQqBCM0xj0LkyqZzaOWRYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
   }
 }

@@ -12,10 +12,10 @@
   "proof": [
     {
       "type": "BbsTermwiseSignature2021",
-      "created": "2021-10-11T20:49:28Z",
+      "created": "2022-02-05T06:32:40Z",
       "verificationMethod": "did:example:489398593#test",
       "proofPurpose": "assertionMethod",
-      "proofValue": "pzC7wNn5YO2aK6QiVjjKr3FrwYFH/FQxl917P8GgaoFSAUgHUuKOdJImSYTgCdb9YUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
+      "proofValue": "qd/nZUG9LJh7dnWeKw0hRuNEzT+72YDji9FNR1q/I9To3f3rXX5lAHs4h3TpxsRLYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
     },
     {
       "type": "Ed25519Signature2018",

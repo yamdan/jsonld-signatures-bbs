@@ -20,14 +20,6 @@ import { BbsTermwiseSignatureProof2021, deriveProof } from "../src/index";
 import jsigs from "jsonld-signatures";
 
 describe("BbsTermwiseSignatureProof2021", () => {
-  it("should derive proof", async () => {
-    const result = await deriveProof(testSignedDocument, testRevealDocument, {
-      suite: new BbsTermwiseSignatureProof2021(),
-      documentLoader: customLoader
-    });
-    expect(result).toBeDefined();
-  });
-
   it("should derive proof revealing all statements", async () => {
     const result = await deriveProof(
       testSignedDocument,
@@ -37,6 +29,14 @@ describe("BbsTermwiseSignatureProof2021", () => {
         documentLoader: customLoader
       }
     );
+    expect(result).toBeDefined();
+  });
+
+  it("should derive proof", async () => {
+    const result = await deriveProof(testSignedDocument, testRevealDocument, {
+      suite: new BbsTermwiseSignatureProof2021(),
+      documentLoader: customLoader
+    });
     expect(result).toBeDefined();
   });
 
@@ -177,7 +177,7 @@ describe("BbsTermwiseSignatureProof2021", () => {
     ).rejects.toThrowError("proofDocument should be an object not an array.");
   });
 
-  it("should throw an error when proofDocument doesn't include a BBSBlsSignatureProof2020", async () => {
+  it("should throw an error when proofDocument doesn't include a BbsTermwiseSignature2021", async () => {
     await expect(
       deriveProof(testSignedDocumentEd25519, testRevealDocument, {
         suite: new BbsTermwiseSignatureProof2021(),

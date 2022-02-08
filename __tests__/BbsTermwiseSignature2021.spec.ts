@@ -2,20 +2,24 @@ import jsigs from "jsonld-signatures";
 
 import {
   exampleBls12381KeyPair,
+  exampleBls12381KeyPairJwk,
   testDocument,
   testSignedDocument,
   testBadSignedDocument,
   testBadSignedDocumentWithIncompatibleSuite,
   customLoader,
   testVcDocument,
+  testVcDocumentJwk,
   testSignedVcDocument,
   testSignedVcDocumentJwk,
   testSignedDocumentMultiProofs,
-  testSignedDocumentMultiBadProofs
+  testSignedDocumentMultiBadProofs,
+  testNestedVcDocument
 } from "./__fixtures__";
 import { Bls12381G2KeyPair, BbsTermwiseSignature2021 } from "../src/index";
 
 const key = new Bls12381G2KeyPair(exampleBls12381KeyPair);
+const jwkey = new Bls12381G2KeyPair(exampleBls12381KeyPairJwk);
 
 describe("BbsTermwiseSignature2021", () => {
   it("should sign with jsigs", async () => {
@@ -62,12 +66,12 @@ describe("BbsTermwiseSignature2021", () => {
   });
 
   it("should not verify with additional unsigned information with jsigs", async () => {
-    const modfiedDocument = {
+    const modifiedDocument = {
       ...testSignedDocument,
       unsignedClaim: "oops"
     };
 
-    const verificationResult = await jsigs.verify(modfiedDocument, {
+    const verificationResult = await jsigs.verify(modifiedDocument, {
       suite: new BbsTermwiseSignature2021(),
       purpose: new jsigs.purposes.AssertionProofPurpose(),
       documentLoader: customLoader
@@ -77,12 +81,12 @@ describe("BbsTermwiseSignature2021", () => {
   });
 
   it("should not verify with modified statement", async () => {
-    const modfiedDocument = {
+    const modifiedDocument = {
       ...testSignedDocument,
       email: "someOtherEmail@example.com"
     };
 
-    const verificationResult = await jsigs.verify(modfiedDocument, {
+    const verificationResult = await jsigs.verify(modifiedDocument, {
       suite: new BbsTermwiseSignature2021(),
       purpose: new jsigs.purposes.AssertionProofPurpose(),
       documentLoader: customLoader
@@ -108,6 +112,15 @@ describe("BbsTermwiseSignature2021", () => {
     });
     expect(verificationResult).toBeDefined();
     expect(verificationResult.verified).toBeTruthy();
+  });
+
+  it("should sign verifiable credential with JWK and jsigs", async () => {
+    const signed = await jsigs.sign(testVcDocumentJwk, {
+      suite: new BbsTermwiseSignature2021({ key: jwkey }),
+      purpose: new jsigs.purposes.AssertionProofPurpose(),
+      documentLoader: customLoader
+    });
+    expect(signed).toBeDefined();
   });
 
   it("should verify verifiable credential with JWK and jsigs", async () => {
@@ -147,5 +160,14 @@ describe("BbsTermwiseSignature2021", () => {
     );
     expect(verificationResult).toBeDefined();
     expect(verificationResult.verified).toBeFalsy();
+  });
+
+  it("should sign nested verifiable credential with jigs", async () => {
+    const signed = await jsigs.sign(testNestedVcDocument, {
+      suite: new BbsTermwiseSignature2021({ key }),
+      purpose: new jsigs.purposes.AssertionProofPurpose(),
+      documentLoader: customLoader
+    });
+    expect(signed).toBeDefined();
   });
 });

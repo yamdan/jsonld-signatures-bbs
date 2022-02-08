@@ -25,12 +25,5 @@
     "commuterClassification": "C1",
     "birthCountry": "Bahamas",
     "birthDate": "1958-07-17"
-  },
-  "proof": {
-    "type": "BbsTermwiseSignature2021",
-    "created": "2022-02-08T02:48:01Z",
-    "verificationMethod": "did:example:82612387612873#test",
-    "proofPurpose": "assertionMethod",
-    "proofValue": "idDe8YAbi1HyRXnfx0OlJctKwXL43sVaEFXWDmK5MlaCLpf/7MaZDXcerqY2mO0XYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
   }
 }
