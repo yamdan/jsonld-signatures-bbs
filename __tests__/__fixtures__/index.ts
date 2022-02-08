@@ -31,7 +31,7 @@ import testVcDocumentJwk from "./data/test_vc_jwk.json";
 import testSignedVcDocument from "./data/test_signed_vc.json";
 import testSignedVcDocumentJwk from "./data/test_signed_vc_jwk.json";
 import testRevealVcDocument from "./data/test_vc_reveal_document.json";
-import testRevealVcDocumentWithUnknownKeys from "./data/test_vc_reveal_document_jwk.json";
+import testRevealVcDocumentWithUnknownKeys from "./data/test_vc_reveal_document_with_unknown_keys.json";
 import testRevealAllVcDocument from "./data/test_vc_reveal_all_document.json";
 import testRevealVcDocumentJwk from "./data/test_vc_reveal_document_jwk.json";
 import testRevealAllDocument from "./data/test_reveal_all_document.json";

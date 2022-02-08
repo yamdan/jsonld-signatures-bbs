@@ -446,41 +446,27 @@ describe("BbsTermwiseSignatureProof2021", () => {
     expect(result.verified).toBeTruthy();
   });
 
-  it("should derive and verify vc with reveal document including unknown keys", async () => {
+  it("should not derive proof with invalid reveal document", async () => {
     const suite = new BbsTermwiseSignatureProof2021({
       useNativeCanonize: false,
       key
     });
 
-    // holder
     const { proofs, document } = await getProofs({
       document: testSignedVcDocument,
       proofType: BbsTermwiseSignatureProof2021.supportedDerivedProofType,
       documentLoader: customLoader
     });
-    const derivedProof: any = await suite.deriveProof({
-      document,
-      proof: proofs,
-      revealDocument: testRevealVcDocumentWithUnknownKeys, // reveal doc including unknown keys
-      documentLoader: customLoader
-    });
-    expect(derivedProof).toBeDefined();
-    const derived = { ...derivedProof.document, proof: derivedProof.proof };
-
-    // verifier
-    const { proofs: derivedProofs, document: derivedDocument } =
-      await getProofs({
-        document: derived,
-        proofType: BbsTermwiseSignatureProof2021.proofType,
+    await expect(
+      suite.deriveProof({
+        document,
+        proof: proofs,
+        revealDocument: testRevealVcDocumentWithUnknownKeys, // invalid reveal document
         documentLoader: customLoader
-      });
-    const result = await suite.verifyProof({
-      document: derivedDocument,
-      proof: derivedProofs,
-      documentLoader: customLoader,
-      purpose: new jsigs.purposes.AssertionProofPurpose()
-    });
-    expect(result.verified).toBeTruthy();
+      })
+    ).rejects.toThrowError(
+      "jsonld.SyntaxError: Invalid JSON-LD syntax; invalid @id in frame."
+    );
   });
 
   it("should derive and verify a fully revealed derived proof that uses nesting from a vc", async () => {
