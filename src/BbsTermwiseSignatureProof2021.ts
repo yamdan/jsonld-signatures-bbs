@@ -47,7 +47,7 @@ class URIAnonymizer {
   anonymizeJsonld(doc: any): any {
     const anonymizeDocument = (doc: any): void => {
       for (const [k, v] of Object.entries(doc)) {
-        if (typeof v === "object") {
+        if (v != null && typeof v === "object") {
           anonymizeDocument(v);
         } else if (typeof v === "string") {
           const anid = this.equivs.get(`<${v}>`);
@@ -1032,6 +1032,15 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
             throw new Error("all of the nonces must have the same values");
           }
           previous_nonce = proof.nonce;
+
+          // Validate that the input proof document has a proof compatible with this suite
+          if (!BbsTermwiseSignatureProof2021.proofType.includes(proof.type)) {
+            throw new TypeError(
+              `proof document proof incompatible, expected proof types of ${JSON.stringify(
+                BbsTermwiseSignatureProof2021.proofType
+              )} received ${proof.type}`
+            );
+          }
 
           // Extract revealed indicies and zkproof from proofValue
           const [revealedStatementIndiciesEncoded, proofValue] =
