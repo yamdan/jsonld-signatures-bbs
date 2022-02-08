@@ -464,9 +464,7 @@ describe("BbsTermwiseSignatureProof2021", () => {
         revealDocument: testRevealVcDocumentWithUnknownKeys, // invalid reveal document
         documentLoader: customLoader
       })
-    ).rejects.toThrowError(
-      "jsonld.SyntaxError: Invalid JSON-LD syntax; invalid @id in frame."
-    );
+    ).rejects.toThrowError("Invalid JSON-LD syntax; invalid @id in frame.");
   });
 
   it("should derive and verify a fully revealed derived proof that uses nesting from a vc", async () => {
