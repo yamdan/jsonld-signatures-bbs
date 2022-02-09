@@ -5,7 +5,8 @@ import {
   expVCDocumentForRangeProof2,
   expRevealDocumentForRangeProof,
   expRevealDocumentForRangeProof2,
-  customLoader
+  customLoader,
+  expVCDocumentForRangeProofInvalid
 } from "./__fixtures__";
 
 import {
@@ -55,6 +56,19 @@ describe("BbsTermwise2021 and BbsTermwiseSignature2021", () => {
           key: expKey2
         }
       ],
+      hiddenUris,
+      customLoader,
+      BbsTermwiseSignature2021,
+      BbsTermwiseSignatureProof2021
+    );
+  });
+
+  it("should derive and verify a proof including some invalid integers", async () => {
+    const vc = { ...expVCDocumentForRangeProofInvalid };
+    const hiddenUris: string[] = [];
+
+    await signDeriveVerifyMulti(
+      [{ vc, revealDocument: expRevealDocumentForRangeProof2, key: expKey1 }],
       hiddenUris,
       customLoader,
       BbsTermwiseSignature2021,
