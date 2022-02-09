@@ -23,7 +23,7 @@ import {
   VerifyProofResult
 } from "./types";
 import { BbsTermwiseSignature2021 } from "./BbsTermwiseSignature2021";
-import { Statement, TYPE_NAMED_NODE } from "./Statement";
+import { Statement, TYPE_NAMED_NODE, XSD_INTEGER } from "./Statement";
 import {
   SECURITY_CONTEXT_URLS,
   NUM_OF_TERMS_IN_STATEMENT,
@@ -544,7 +544,9 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
 
             const statementIndicies = this.getIndicies(
               anonymizedStatements,
-              statements.filter((s) => s.predicate.value === pred)
+              statements
+                .filter((s) => s.predicate.value === pred)
+                .filter((s) => s.object.datatype?.value === XSD_INTEGER)
             );
 
             return statementIndicies.map((idx) => [

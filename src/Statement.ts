@@ -11,8 +11,8 @@ const NQuads = rdfCanonize.NQuads;
 
 const RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 const RDF_LANGSTRING = RDF + "langString";
-const XSD_STRING = "http://www.w3.org/2001/XMLSchema#string";
-const XSD_INTEGER = "http://www.w3.org/2001/XMLSchema#integer";
+export const XSD_STRING = "http://www.w3.org/2001/XMLSchema#string";
+export const XSD_INTEGER = "http://www.w3.org/2001/XMLSchema#integer";
 export const TYPE_NAMED_NODE = "NamedNode";
 export const TYPE_BLANK_NODE = "BlankNode";
 const U8_STRING = 0;
@@ -147,9 +147,9 @@ export class Statement {
         const val = term.slice(1, -`"^^<${XSD_INTEGER}>`.length);
         if (val.match(/[1-9]\d*/)) {
           const num = parseInt(val);
-          if (Number.isSafeInteger(num) && 0 <= num && num < 2 ** 32) {
+          if (Number.isSafeInteger(num) && Math.abs(num) < 2 ** 31) {
             return Uint8Array.of(
-              U8_INTEGER, // shows that this array encodes 32-bit integer
+              U8_INTEGER, // shows that this array encodes 32-bit integer (big endian)
               (num & 0xff000000) >> 24,
               (num & 0x00ff0000) >> 16,
               (num & 0x0000ff00) >> 8,
