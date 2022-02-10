@@ -1043,9 +1043,22 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           // Extract revealed indicies and zkproof from proofValue
           const [revealedStatementIndiciesEncoded, proofValue] =
             proof.proofValue.split(".");
-          const revealedStatementIndicies: number[] = JSON.parse(
-            Buffer.from(revealedStatementIndiciesEncoded, "base64").toString()
-          );
+
+          if (
+            typeof revealedStatementIndiciesEncoded === "undefined" ||
+            typeof proofValue === "undefined"
+          ) {
+            throw new Error("invalid proofValue");
+          }
+
+          let revealedStatementIndicies: number[] = [];
+          try {
+            revealedStatementIndicies = JSON.parse(
+              Buffer.from(revealedStatementIndiciesEncoded, "base64").toString()
+            );
+          } catch (e) {
+            throw new Error("invalid proofValue");
+          }
 
           proofArray.push(new Uint8Array(Buffer.from(proofValue, "base64")));
 
