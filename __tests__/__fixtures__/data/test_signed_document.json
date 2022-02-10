@@ -11,9 +11,9 @@
   "email": "jane.doe@example.com",
   "proof": {
     "type": "BbsTermwiseSignature2021",
-    "created": "2022-02-05T05:51:29Z",
+    "created": "2022-02-10T00:23:35Z",
     "verificationMethod": "did:example:489398593#test",
     "proofPurpose": "assertionMethod",
-    "proofValue": "oMW+XFazxyYr6aHGGw28cgaxVoOHDGdmW4+CYXGmGJrlU02046L8wVTxOV580DWhYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
+    "proofValue": "hPlw36sYKr1tea+W+dPFmaNZi5Jbjmc6b6jKB8WNTQ2SLNnyjnrTWOx/olXsCRpeYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
   }
 }

@@ -32,7 +32,7 @@ describe("BbsTermwiseSignatureProof2021", () => {
     expect(result).toBeDefined();
   });
 
-  it("should derive proof", async () => {
+  it("should derive proof revealing partial statements", async () => {
     const result = await deriveProof(testSignedDocument, testRevealDocument, {
       suite: new BbsTermwiseSignatureProof2021(),
       documentLoader: customLoader
@@ -167,7 +167,7 @@ describe("BbsTermwiseSignatureProof2021", () => {
   it("should throw an error when proofDocument is the wrong type", async () => {
     await expect(
       deriveProof(
-        [testSignedDocument, testSignedDocument],
+        [testSignedDocument, testSignedDocument], // array instead of object
         testRevealDocument,
         {
           suite: new BbsTermwiseSignatureProof2021(),
@@ -177,7 +177,7 @@ describe("BbsTermwiseSignatureProof2021", () => {
     ).rejects.toThrowError("proofDocument should be an object not an array.");
   });
 
-  it("should throw an error when proofDocument doesn't include a BbsTermwiseSignature2021", async () => {
+  it("should throw an error when proofDocument doesn't include a compatible suite", async () => {
     await expect(
       deriveProof(testSignedDocumentEd25519, testRevealDocument, {
         suite: new BbsTermwiseSignatureProof2021(),

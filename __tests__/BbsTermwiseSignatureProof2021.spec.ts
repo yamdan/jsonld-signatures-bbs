@@ -3,7 +3,6 @@ import jsigs from "jsonld-signatures";
 import {
   exampleBls12381KeyPair,
   testRevealDocument,
-  testRevealDocumentWithUnknownKeys,
   testSignedDocument,
   customLoader,
   testSignedVcDocument,
@@ -13,7 +12,8 @@ import {
   testSignedNestedVcDocument,
   testNestedRevealFullDocument,
   testNestedRevealDocument,
-  testRevealVcDocumentWithUnknownKeys
+  testRevealVcDocumentInvalid,
+  testRevealDocumentWithUnknownAttributes
 } from "./__fixtures__";
 import {
   Bls12381G2KeyPair,
@@ -99,7 +99,7 @@ describe("BbsTermwiseSignatureProof2021", () => {
     expect(result.verified).toBeTruthy();
   });
 
-  it("should derive and verify proof with reveal document including unknown keys", async () => {
+  it("should derive and verify proof with reveal document including unknown attributes", async () => {
     const suite = new BbsTermwiseSignatureProof2021({
       useNativeCanonize: false,
       key
@@ -114,7 +114,7 @@ describe("BbsTermwiseSignatureProof2021", () => {
     const derivedProof: any = await suite.deriveProof({
       document,
       proof: proofs,
-      revealDocument: testRevealDocumentWithUnknownKeys, // reveal doc including unknown keys
+      revealDocument: testRevealDocumentWithUnknownAttributes, // reveal doc including unknown attributes
       documentLoader: customLoader
     });
     expect(derivedProof).toBeDefined();
@@ -171,9 +171,14 @@ describe("BbsTermwiseSignatureProof2021", () => {
       purpose: new jsigs.purposes.AssertionProofPurpose()
     });
     expect(result.verified).toBeFalsy();
+    expect(result.error).toHaveProperty("name", "Error");
+    expect(result.error).toHaveProperty(
+      "message",
+      "documents to be verified must have at least one proof"
+    );
   });
 
-  it("should not verify partial derived proof with bad proof", async () => {
+  it("should not verify modified proof with bad prefix", async () => {
     const suite = new BbsTermwiseSignatureProof2021({
       useNativeCanonize: false,
       key
@@ -192,13 +197,18 @@ describe("BbsTermwiseSignatureProof2021", () => {
       documentLoader: customLoader
     });
     expect(derivedProof).toBeDefined();
-    const derived = { ...derivedProof.document, proof: derivedProof.proof };
-    derived.proof.proofValue = "BAD" + derived.proof.proofValue; // bad proof
+    const modifiedProof = {
+      ...derivedProof.document,
+      proof: {
+        ...derivedProof.proof,
+        proofValue: "BAD" + derivedProof.proof.proofValue // bad prefix
+      }
+    };
 
     // verifier
     const { proofs: derivedProofs, document: derivedDocument } =
       await getProofs({
-        document: derived,
+        document: modifiedProof,
         proofType: BbsTermwiseSignatureProof2021.proofType,
         documentLoader: customLoader
       });
@@ -209,6 +219,58 @@ describe("BbsTermwiseSignatureProof2021", () => {
       purpose: new jsigs.purposes.AssertionProofPurpose()
     });
     expect(result.verified).toBeFalsy();
+    expect(result.error).toHaveProperty("name", "Error");
+    expect(result.error).toHaveProperty("message", "invalid proofValue");
+  });
+
+  it.skip("should not verify modified proof with bad suffix", async () => {
+    // Temporarily Skipped:
+    // Any suffix added to Base64-encoded proofValue is currently just ignored
+    // as long as it does not affect the result of `Buffer.from()`
+    // ref: https://github.com/nodejs/node/issues/8569
+
+    const suite = new BbsTermwiseSignatureProof2021({
+      useNativeCanonize: false,
+      key
+    });
+
+    // holder
+    const { proofs, document } = await getProofs({
+      document: testSignedDocument,
+      proofType: BbsTermwiseSignatureProof2021.supportedDerivedProofType,
+      documentLoader: customLoader
+    });
+    const derivedProof: any = await suite.deriveProof({
+      document,
+      proof: proofs,
+      revealDocument: testRevealDocument,
+      documentLoader: customLoader
+    });
+    expect(derivedProof).toBeDefined();
+    const modifiedProof = {
+      ...derivedProof.document,
+      proof: {
+        ...derivedProof.proof,
+        proofValue: derivedProof.proof.proofValue + "BAD" // bad suffix
+      }
+    };
+
+    // verifier
+    const { proofs: derivedProofs, document: derivedDocument } =
+      await getProofs({
+        document: modifiedProof,
+        proofType: BbsTermwiseSignatureProof2021.proofType,
+        documentLoader: customLoader
+      });
+    const result = await suite.verifyProof({
+      document: derivedDocument,
+      proof: derivedProofs,
+      documentLoader: customLoader,
+      purpose: new jsigs.purposes.AssertionProofPurpose()
+    });
+    expect(result.verified).toBeFalsy();
+    expect(result.error).toHaveProperty("name", "Error");
+    expect(result.error).toHaveProperty("message", "invalid proofValue");
   });
 
   it("should not verify partial derived proof with incompatible suite", async () => {
@@ -231,13 +293,18 @@ describe("BbsTermwiseSignatureProof2021", () => {
       documentLoader: customLoader
     });
     expect(derivedProof).toBeDefined();
-    const derived = { ...derivedProof.document, proof: derivedProof.proof };
-    derived.proof.type = "BbsBlsSignatureProof2020"; // incompatible suite
+    const modifiedProof = {
+      ...derivedProof.document,
+      proof: {
+        ...derivedProof.proof,
+        type: "IncompatibleSignatureProof9999" // incompatible suite
+      }
+    };
 
     // verifier
     const { proofs: derivedProofs, document: derivedDocument } =
       await getProofs({
-        document: derived,
+        document: modifiedProof,
         proofType: BbsTermwiseSignatureProof2021.proofType,
         documentLoader: customLoader
       });
@@ -248,6 +315,11 @@ describe("BbsTermwiseSignatureProof2021", () => {
       purpose: new jsigs.purposes.AssertionProofPurpose()
     });
     expect(result.verified).toBeFalsy();
+    expect(result.error).toHaveProperty("name", "Error");
+    expect(result.error).toHaveProperty(
+      "message",
+      "documents to be verified must have at least one proof"
+    );
   });
 
   it("should not verify partial derived proof with incompatible suite (even if getProofs is not used)", async () => {
@@ -270,16 +342,28 @@ describe("BbsTermwiseSignatureProof2021", () => {
       documentLoader: customLoader
     });
     expect(derivedProof).toBeDefined();
-    derivedProof.proof.type = "BbsBlsSignatureProof2020"; // incompatible suite
+
+    const modifiedProof = {
+      ...derivedProof.document,
+      proof: {
+        ...derivedProof.proof,
+        type: "IncompatibleSignatureProof9999" // incompatible suite
+      }
+    };
 
     // verifier
     const result = await suite.verifyProof({
-      document: derivedProof.document,
-      proof: derivedProof.proof,
+      document: modifiedProof.document,
+      proof: modifiedProof.proof,
       documentLoader: customLoader,
       purpose: new jsigs.purposes.AssertionProofPurpose()
     });
     expect(result.verified).toBeFalsy();
+    expect(result.error).toHaveProperty("name", "TypeError");
+    expect(result.error).toHaveProperty(
+      "message",
+      'incompatible proof type: expected proof types of ["BbsTermwiseSignatureProof2021","https://www.zkp-ld.org/security#BbsTermwiseSignatureProof2021"] received IncompatibleSignatureProof9999'
+    );
   });
 
   it("should not derive proof with document featuring unsigned info", async () => {
@@ -446,7 +530,7 @@ describe("BbsTermwiseSignatureProof2021", () => {
     expect(result.verified).toBeTruthy();
   });
 
-  it("should not derive proof with invalid reveal document", async () => {
+  it("should not derive proof from vc with invalid reveal document", async () => {
     const suite = new BbsTermwiseSignatureProof2021({
       useNativeCanonize: false,
       key
@@ -461,7 +545,7 @@ describe("BbsTermwiseSignatureProof2021", () => {
       suite.deriveProof({
         document,
         proof: proofs,
-        revealDocument: testRevealVcDocumentWithUnknownKeys, // invalid reveal document
+        revealDocument: testRevealVcDocumentInvalid, // invalid reveal document
         documentLoader: customLoader
       })
     ).rejects.toThrowError("Invalid JSON-LD syntax; invalid @id in frame.");

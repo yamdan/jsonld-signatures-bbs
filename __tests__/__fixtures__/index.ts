@@ -18,20 +18,17 @@ import exampleBls12381KeyPairJwk from "./data/exampleBls12381KeyPairJwk.json";
 import exampleEd25519KeyPair from "./data/did_example_b34ca6cd37bbf23_test.json";
 import testDocument from "./data/test_document.json";
 import testRevealDocument from "./data/test_reveal_document.json";
-import testRevealDocumentWithUnknownKeys from "./data/test_reveal_document_with_unknown_keys.json";
+import testRevealDocumentWithUnknownAttributes from "./data/test_reveal_document_with_unknown_attributes.json";
 import testSignedDocument from "./data/test_signed_document.json";
 import testSignedDocumentMultiProofs from "./data/test_signed_document_multi_proofs.json";
 import testSignedDocumentMultiDifProofs from "./data/test_signed_document_multi_dif_proofs.json";
-import testSignedDocumentMultiBadProofs from "./data/test_signed_document_multi_proofs_bad.json";
 import testSignedDocumentEd25519 from "./data/test_signed_document_ed25519.json";
-import testBadSignedDocument from "./data/test_bad_signed_document.json";
-import testBadSignedDocumentWithIncompatibleSuite from "./data/test_bad_signed_document_with_incompatible_suite.json";
 import testVcDocument from "./data/test_vc.json";
 import testVcDocumentJwk from "./data/test_vc_jwk.json";
 import testSignedVcDocument from "./data/test_signed_vc.json";
 import testSignedVcDocumentJwk from "./data/test_signed_vc_jwk.json";
 import testRevealVcDocument from "./data/test_vc_reveal_document.json";
-import testRevealVcDocumentWithUnknownKeys from "./data/test_vc_reveal_document_with_unknown_keys.json";
+import testRevealVcDocumentInvalid from "./data/test_vc_reveal_document_invalid.json";
 import testRevealAllVcDocument from "./data/test_vc_reveal_all_document.json";
 import testRevealVcDocumentJwk from "./data/test_vc_reveal_document_jwk.json";
 import testRevealAllDocument from "./data/test_reveal_all_document.json";
@@ -66,12 +63,11 @@ export {
   exampleEd25519KeyPair,
   testDocument,
   testRevealDocument,
-  testRevealDocumentWithUnknownKeys,
+  testRevealDocumentWithUnknownAttributes,
   testRevealVcDocumentJwk,
   testSignedDocument,
   testSignedDocumentMultiProofs,
   testSignedDocumentMultiDifProofs,
-  testSignedDocumentMultiBadProofs,
   testSignedDocumentEd25519,
   testVcDocument,
   testVcDocumentJwk,
@@ -79,10 +75,8 @@ export {
   testSignedVcDocument,
   testSignedVcDocumentJwk,
   testRevealVcDocument,
-  testRevealVcDocumentWithUnknownKeys,
+  testRevealVcDocumentInvalid,
   testRevealAllVcDocument,
-  testBadSignedDocument,
-  testBadSignedDocumentWithIncompatibleSuite,
   testNestedRevealDocument,
   testNestedRevealFullDocument,
   testNestedVcDocument,

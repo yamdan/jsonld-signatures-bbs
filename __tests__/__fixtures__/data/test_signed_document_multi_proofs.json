@@ -12,17 +12,17 @@
   "proof": [
     {
       "type": "BbsTermwiseSignature2021",
-      "created": "2022-02-05T06:32:40Z",
+      "created": "2022-02-10T00:23:35Z",
       "verificationMethod": "did:example:489398593#test",
       "proofPurpose": "assertionMethod",
-      "proofValue": "qd/nZUG9LJh7dnWeKw0hRuNEzT+72YDji9FNR1q/I9To3f3rXX5lAHs4h3TpxsRLYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
+      "proofValue": "hPlw36sYKr1tea+W+dPFmaNZi5Jbjmc6b6jKB8WNTQ2SLNnyjnrTWOx/olXsCRpeYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
     },
     {
       "type": "BbsTermwiseSignature2021",
-      "created": "2022-02-05T05:51:29Z",
+      "created": "2022-02-10T00:42:13Z",
       "verificationMethod": "did:example:489398593#test",
       "proofPurpose": "assertionMethod",
-      "proofValue": "oMW+XFazxyYr6aHGGw28cgaxVoOHDGdmW4+CYXGmGJrlU02046L8wVTxOV580DWhYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
+      "proofValue": "pgTYIKJhNgj77XH/oGZkaxpozcM5yEBbISDYMbrELDBZ6EtYHXI3Hsslxb3QeYouYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
     }
   ]
 }
