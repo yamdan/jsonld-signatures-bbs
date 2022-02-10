@@ -426,20 +426,20 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     for (let i = 0; i < doc.length; i++) {
       if (typeof doc[i] !== "object") continue;
 
-      for (const [k, v] of Object.entries(doc[i])) {
-        if (k === path[0]) {
+      for (const [j, v] of Object.entries(doc[i])) {
+        if (j === path[0]) {
           if (!Array.isArray(v)) return;
 
           if (path[1] === "") {
             // overwrite a rangeproof part of the revealed document
-            doc[i][k] = [
-              {
+            for (let k = 0; k < doc[i][j].length; k++) {
+              doc[i][j][k] = {
                 [KEY_FOR_RANGEPROOF]: [
                   { "@value": path[2] },
                   { "@value": path[3] }
                 ]
-              }
-            ];
+              };
+            }
           } else {
             this.updateDocWithRange(v, path.slice(1));
           }
@@ -821,12 +821,12 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         // Add proof statements length to rangeproof indicies
         rangeProofIndiciesArray.push(
           rangeProofIndicies
-            .filter(([idx]) => revealedTermIndicies.includes(idx))
-            .map(([idx, min, max]) => [
+            .map(([idx, min, max]): [number, number, number] => [
               idx + proofStatements.length * NUM_OF_TERMS_IN_STATEMENT,
               min,
               max
             ])
+            .filter(([idx]) => revealedTermIndicies.includes(idx))
         );
 
         // Fetch the verification method
