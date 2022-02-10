@@ -768,7 +768,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           )
         ) {
           throw new TypeError(
-            `proof document proof incompatible, expected proof types of ${JSON.stringify(
+            `incompatible proof type: expected proof types of ${JSON.stringify(
               BbsTermwiseSignatureProof2021.supportedDerivedProofType
             )} received ${proof.type}`
           );
@@ -1034,7 +1034,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           // Validate that the input proof document has a proof compatible with this suite
           if (!BbsTermwiseSignatureProof2021.proofType.includes(proof.type)) {
             throw new TypeError(
-              `proof document proof incompatible, expected proof types of ${JSON.stringify(
+              `incompatible proof type: expected proof types of ${JSON.stringify(
                 BbsTermwiseSignatureProof2021.proofType
               )} received ${proof.type}`
             );
