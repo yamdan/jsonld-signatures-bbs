@@ -54,7 +54,8 @@ import expRevealDocument3 from "./data/exp_reveal_document3.json";
 import expVCDocumentForRangeProof from "./data/exp_vc_rangeproof.json";
 import expVCDocumentForRangeProof2 from "./data/exp_vc_rangeproof2.json";
 import expVCDocumentForRangeProofInvalid from "./data/exp_vc_rangeproof_invalid.json";
-import expRevealDocumentForRangeProof from "./data/exp_reveal_document_rangeproof.json";
+import expRevealDocumentWithoutRangeProof from "./data/exp_reveal_document_rangeproof0.json";
+import expRevealDocumentForRangeProof from "./data/exp_reveal_document_rangeproof1.json";
 import expRevealDocumentForRangeProof2 from "./data/exp_reveal_document_rangeproof2.json";
 
 export {
@@ -100,6 +101,7 @@ export {
   expVCDocumentForRangeProof,
   expVCDocumentForRangeProof2,
   expVCDocumentForRangeProofInvalid,
+  expRevealDocumentWithoutRangeProof,
   expRevealDocumentForRangeProof,
   expRevealDocumentForRangeProof2
 };

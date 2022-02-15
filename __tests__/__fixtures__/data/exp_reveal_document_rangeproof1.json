@@ -1,0 +1,21 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://www.zkp-ld.org/bbs-termwise-2021.jsonld",
+    "https://schema.org"
+  ],
+  "type": ["VerifiableCredential"],
+  "@explicit": true,
+  "issuer": {},
+  "credentialSubject": {
+    "type": "Place",
+    "@explicit": true,
+    "maximumAttendeeCapacity": { "range": [4000, 6000] },
+    "containsPlace": {
+      "@explicit": true,
+      "id": "https://example.org/townA2",
+      "maximumAttendeeCapacity": { "range": [1000, 5000] }
+    },
+    "containedInPlace": {}
+  }
+}
