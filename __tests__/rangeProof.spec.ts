@@ -23,13 +23,26 @@ const expKey2 = new Bls12381G2KeyPair(expExampleBls12381KeyPair2);
 
 describe("BbsTermwise2021 and BbsTermwiseSignature2021", () => {
   it("should derive and verify a proof without range proofs", async () => {
-    const vc = { ...expVCDocumentForRangeProof };
+    const vc = { ...expVCDocumentForRangeProof2 };
     const hiddenUris: string[] = [];
 
     await signDeriveVerifyMulti(
       [
         { vc, revealDocument: expRevealDocumentWithoutRangeProof, key: expKey1 }
       ],
+      hiddenUris,
+      customLoader,
+      BbsTermwiseSignature2021,
+      BbsTermwiseSignatureProof2021
+    );
+  });
+
+  it("should derive and verify a proof including one range proof", async () => {
+    const vc = { ...expVCDocumentForRangeProof2 };
+    const hiddenUris: string[] = [];
+
+    await signDeriveVerifyMulti(
+      [{ vc, revealDocument: expRevealDocumentForRangeProof2, key: expKey1 }],
       hiddenUris,
       customLoader,
       BbsTermwiseSignature2021,

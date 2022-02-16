@@ -10,12 +10,6 @@
   "credentialSubject": {
     "type": "Place",
     "@explicit": true,
-    "maximumAttendeeCapacity": {},
-    "containsPlace": {
-      "@explicit": true,
-      "id": "https://example.org/townA2",
-      "maximumAttendeeCapacity": {}
-    },
-    "containedInPlace": {}
+    "area": {}
   }
 }
