@@ -92,16 +92,54 @@ describe("BbsTermwise2021 and BbsTermwiseSignature2021", () => {
     );
   });
 
-  it("should derive and verify a proof including some invalid integers", async () => {
+  it("should not derive a range proof including some invalid integers", async () => {
     const vc = { ...expVCDocumentForRangeProofInvalid };
     const hiddenUris: string[] = [];
 
-    await signDeriveVerifyMulti(
-      [{ vc, revealDocument: expRevealDocumentForRangeProof2, key: expKey1 }],
-      hiddenUris,
-      customLoader,
-      BbsTermwiseSignature2021,
-      BbsTermwiseSignatureProof2021
-    );
+    await expect(
+      signDeriveVerifyMulti(
+        [{ vc, revealDocument: expRevealDocumentForRangeProof2, key: expKey1 }],
+        hiddenUris,
+        customLoader,
+        BbsTermwiseSignature2021,
+        BbsTermwiseSignatureProof2021
+      )
+    ).rejects.toThrowError("Failed to create proof");
+  });
+
+  it("should not derive a range proof with value out of range: 30000 notin [1, 100]", async () => {
+    const vc = { ...expVCDocumentForRangeProof2 };
+    const hiddenUris: string[] = [];
+
+    const revealDocument = expRevealDocumentForRangeProof2;
+    revealDocument.credentialSubject.area.range = [1, 100];
+
+    await expect(
+      signDeriveVerifyMulti(
+        [{ vc, revealDocument, key: expKey1 }],
+        hiddenUris,
+        customLoader,
+        BbsTermwiseSignature2021,
+        BbsTermwiseSignatureProof2021
+      )
+    ).rejects.toThrowError("Failed to create proof");
+  });
+
+  it("should not derive a range proof with value out of range: 30000 notin [100000, 900000]", async () => {
+    const vc = { ...expVCDocumentForRangeProof2 };
+    const hiddenUris: string[] = [];
+
+    const revealDocument = expRevealDocumentForRangeProof2;
+    revealDocument.credentialSubject.area.range = [100000, 900000];
+
+    await expect(
+      signDeriveVerifyMulti(
+        [{ vc, revealDocument, key: expKey1 }],
+        hiddenUris,
+        customLoader,
+        BbsTermwiseSignature2021,
+        BbsTermwiseSignatureProof2021
+      )
+    ).rejects.toThrowError("Failed to create proof");
   });
 });
