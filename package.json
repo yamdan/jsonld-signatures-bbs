@@ -63,8 +63,8 @@
   },
   "dependencies": {
     "@stablelib/random": "1.0.1",
-    "@yamdan/bbs-signatures": "0.6.8",
-    "@yamdan/bls12381-key-pair": "0.7.6",
+    "@yamdan/bbs-signatures": "0.6.10-unstable.db56fd3",
+    "@yamdan/bls12381-key-pair": "0.7.10-unstable.78193fd",
     "bs58": "4.0.1",
     "jsonld": "5.2.0",
     "jsonld-signatures": "9.3.0",
