@@ -101,7 +101,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
   // ported from
   // https://github.com/transmute-industries/verifiable-data/blob/main/packages/bbs-bls12381-signature-2020/src/BbsBlsSignatureProof2020.ts
   ensureSuiteContext({ document }: any): void {
-    const contextUrl = "https://www.zkp-ld.org/bbs-termwise-2021.jsonld";
+    const contextUrl = "https://zkp-ld.org/bbs-termwise-2021.jsonld";
     if (
       document["@context"] === contextUrl ||
       (Array.isArray(document["@context"]) &&
@@ -1204,11 +1204,11 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
 
   static proofType = [
     "BbsTermwiseSignatureProof2021",
-    "https://www.zkp-ld.org/security#BbsTermwiseSignatureProof2021"
+    "https://zkp-ld.org/security#BbsTermwiseSignatureProof2021"
   ];
 
   static supportedDerivedProofType = [
     "BbsTermwiseSignature2021",
-    "https://www.zkp-ld.org/security#BbsTermwiseSignature2021"
+    "https://zkp-ld.org/security#BbsTermwiseSignature2021"
   ];
 }

@@ -1,7 +1,7 @@
 {
   "@context": [
     "https://schema.org",
-    "https://www.zkp-ld.org/bbs-termwise-2021.jsonld"
+    "https://zkp-ld.org/bbs-termwise-2021.jsonld"
   ],
   "@type": "Person",
   "firstName": "Jane",
@@ -11,9 +11,9 @@
   "email": "jane.doe@example.com",
   "proof": {
     "type": "BbsTermwiseSignature2021",
-    "created": "2022-02-10T00:23:35Z",
+    "created": "2022-02-18T09:10:04Z",
     "verificationMethod": "did:example:489398593#test",
     "proofPurpose": "assertionMethod",
-    "proofValue": "hPlw36sYKr1tea+W+dPFmaNZi5Jbjmc6b6jKB8WNTQ2SLNnyjnrTWOx/olXsCRpeYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
+    "proofValue": "uCt2p0ktCL5R3JgERYyDPQXnfOMhoUiUYlOCC++wNtUmOyDR5i7eT+5x1+69F18uYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
   }
 }

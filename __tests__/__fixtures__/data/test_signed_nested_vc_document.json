@@ -2,7 +2,7 @@
   "@context": [
     "https://www.w3.org/2018/credentials/v1",
     "https://www.w3.org/2018/credentials/examples/v1",
-    "https://www.zkp-ld.org/bbs-termwise-2021.jsonld"
+    "https://zkp-ld.org/bbs-termwise-2021.jsonld"
   ],
   "id": "https://example.gov/credentials/3732",
   "type": ["VerifiableCredential", "UniversityDegreeCredential"],
@@ -19,9 +19,9 @@
   },
   "proof": {
     "type": "BbsTermwiseSignature2021",
-    "created": "2022-02-10T03:01:59Z",
+    "created": "2022-02-18T09:14:55Z",
     "verificationMethod": "did:example:489398593#test",
     "proofPurpose": "assertionMethod",
-    "proofValue": "oG9QCcbjUT33TGTiIFmcgEMWwM6iA7BEcxAMILKWO2c6kbxHyG4kumWlfK7q5W21YUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
+    "proofValue": "hOUQNWgT6kZp4bd/W00FZaS3Tm3WfrzuEtUp/DiVbz6Ir2su7De55RvEckK+GgRbYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
   }
 }

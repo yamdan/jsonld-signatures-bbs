@@ -64,7 +64,7 @@ export const documents: any = {
   "did:example:issuer2#bbs-bls-key1": expExampleDidKey2,
   "did:example:issuer3": expExampleDidDoc3,
   "did:example:issuer3#bbs-bls-key1": expExampleDidKey3,
-  "https://www.zkp-ld.org/bbs-termwise-2021.jsonld": bbsTermwise,
+  "https://zkp-ld.org/bbs-termwise-2021.jsonld": bbsTermwise,
   "https://w3id.org/vaccination/v1": vax,
   "did:key:z5TcDVRemCWTd6qwxxhFeYDpQhK4pUYtuutodKP2MSDjzcqokf6cNCARsaF8JNZQ8FzWAYfFZbUqUCUDMWeWp8xVkRSr9z5Tf5k2tJgpjsqNM23E4VjHsCzN6WcSvLGKSA9VEMTc1d2F81mCCauerPY1VC8vPTkvtmEQZfmaZ54x15PJwbhkBxaEbydWjd7D2CWHbkFg9":
     exampleDidKey2,

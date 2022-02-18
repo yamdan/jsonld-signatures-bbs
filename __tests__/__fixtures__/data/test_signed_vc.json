@@ -2,7 +2,7 @@
   "@context": [
     "https://www.w3.org/2018/credentials/v1",
     "https://w3id.org/citizenship/v1",
-    "https://www.zkp-ld.org/bbs-termwise-2021.jsonld"
+    "https://zkp-ld.org/bbs-termwise-2021.jsonld"
   ],
   "id": "https://issuer.oidp.uscis.gov/credentials/83627465",
   "type": ["VerifiableCredential", "PermanentResidentCard"],
@@ -28,9 +28,9 @@
   },
   "proof": {
     "type": "BbsTermwiseSignature2021",
-    "created": "2022-02-10T00:38:22Z",
+    "created": "2022-02-18T09:11:16Z",
     "verificationMethod": "did:example:489398593#test",
     "proofPurpose": "assertionMethod",
-    "proofValue": "uf2mObnY/WaakGk2Pl8CBnS9dIRkRgzLWv4tjghJB17yOhvuY0G54SBCoJwwwDvYYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
+    "proofValue": "qyRdNVhE6/Ht89wPvTDgqIue/bMpmgDl+28HZ+y2ifVUpsPvHRzB+IzaKXwiv+wLYUHlKfzccE4m7waZyoLEkBLFiK2g54Q2i+CdtYBgDdkUDsoULSBMcH1MwGHwdjfXpldFNFrHFx/IAvLVniyeMQ=="
   }
 }

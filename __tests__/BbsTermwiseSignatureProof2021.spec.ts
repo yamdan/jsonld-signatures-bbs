@@ -362,7 +362,7 @@ describe("BbsTermwiseSignatureProof2021", () => {
     expect(result.error).toHaveProperty("name", "TypeError");
     expect(result.error).toHaveProperty(
       "message",
-      'incompatible proof type: expected proof types of ["BbsTermwiseSignatureProof2021","https://www.zkp-ld.org/security#BbsTermwiseSignatureProof2021"] received IncompatibleSignatureProof9999'
+      'incompatible proof type: expected proof types of ["BbsTermwiseSignatureProof2021","https://zkp-ld.org/security#BbsTermwiseSignatureProof2021"] received IncompatibleSignatureProof9999'
     );
   });
 

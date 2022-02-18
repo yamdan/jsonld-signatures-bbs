@@ -12,10 +12,10 @@ import jsonld from "jsonld";
 import { GetProofsOptions, GetProofsResult, GetTypeOptions } from "./types";
 
 export const SECURITY_CONTEXT_URLS = [
-  "https://www.zkp-ld.org/bbs-termwise-2021.jsonld"
+  "https://zkp-ld.org/bbs-termwise-2021.jsonld"
 ];
 export const NUM_OF_TERMS_IN_STATEMENT = 4;
-export const KEY_FOR_RANGEPROOF = "https://www.zkp-ld.org/security#range";
+export const KEY_FOR_RANGEPROOF = "https://zkp-ld.org/security#range";
 
 /**
  * The property identifying the linked data proof
