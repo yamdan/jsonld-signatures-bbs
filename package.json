@@ -1,6 +1,6 @@
 {
   "name": "@yamdan/jsonld-signatures-bbs",
-  "version": "0.11.13",
+  "version": "0.11.14",
   "description": "**Experimental** (do not use in production): Based on MATTR's [jsonld-signatures-bbs](https://github.com/mattrglobal/jsonld-signatures-bbs)",
   "homepage": "https://github.com/yamdan/jsonld-signatures-bbs",
   "author": "yamdan",
@@ -63,8 +63,8 @@
   },
   "dependencies": {
     "@stablelib/random": "1.0.1",
-    "@yamdan/bbs-signatures": "0.6.11",
-    "@yamdan/bls12381-key-pair": "0.7.11",
+    "@yamdan/bbs-signatures": "0.6.12",
+    "@yamdan/bls12381-key-pair": "0.7.12",
     "bs58": "4.0.1",
     "jsonld": "5.2.0",
     "jsonld-signatures": "9.3.0",
