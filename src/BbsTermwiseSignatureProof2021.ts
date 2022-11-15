@@ -35,6 +35,8 @@ class URIAnonymizer {
   private regexp = /^<urn:anon:([^>]+)>/;
 
   private equivs: Map<string, [string, [number, number][]]> = new Map();
+  private regexp_url =
+    /^<https:\/\/zkp-ld.org\/.well-known\/genid\/anonymous\/([^>]+)>/;
 
   constructor();
   constructor(equivs: Map<string, [string, [number, number][]]>);
@@ -71,7 +73,7 @@ class URIAnonymizer {
   }
 
   extractAnonID(t: string): string | null {
-    const found = t.match(this.regexp);
+    const found = t.match(this.regexp) || t.match(this.regexp_url);
     if (found === null) return null;
     return found[1];
   }
