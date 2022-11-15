@@ -33,10 +33,12 @@ import {
 class URIAnonymizer {
   private prefix = "urn:anon:";
   private regexp = /^<urn:anon:([^>]+)>/;
+  private regexp_url =
+    /^<https:\/\/zkp-ld.org\/\.well-known\/genid\/anonymous\/([^>]+)>$/;
+  private regexp_literal =
+    /^"https:\/\/zkp-ld.org\/\.well-known\/genid\/anonymous\/([^"]+)"$/;
 
   private equivs: Map<string, [string, [number, number][]]> = new Map();
-  private regexp_url =
-    /^<https:\/\/zkp-ld.org\/.well-known\/genid\/anonymous\/([^>]+)>/;
 
   constructor();
   constructor(equivs: Map<string, [string, [number, number][]]>);
@@ -73,7 +75,10 @@ class URIAnonymizer {
   }
 
   extractAnonID(t: string): string | null {
-    const found = t.match(this.regexp) || t.match(this.regexp_url);
+    const found =
+      t.match(this.regexp) ||
+      t.match(this.regexp_url) ||
+      t.match(this.regexp_literal);
     if (found === null) return null;
     return found[1];
   }
