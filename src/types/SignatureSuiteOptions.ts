@@ -50,4 +50,12 @@ export interface SignatureSuiteOptions {
   readonly LDKeyClass?: any;
 
   readonly type?: any;
+  /**
+   * The holder secret key commitment for signing
+   */
+  readonly holderSecretCommitment?: Uint8Array;
+  /**
+   * The holder secret key for verifing
+   */
+  readonly holderSecretKey?: Uint8Array;
 }

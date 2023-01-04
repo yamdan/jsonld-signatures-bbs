@@ -1,0 +1,12 @@
+{
+  "@context": [
+    "https://schema.org",
+    "https://zkp-ld.org/bound-bbs-termwise-2022.jsonld"
+  ],
+  "@type": "Person",
+  "firstName": "Jane",
+  "lastName": "Does",
+  "jobTitle": "Professor",
+  "telephone": "(425) 123-4567",
+  "email": "jane.doe@example.com"
+}

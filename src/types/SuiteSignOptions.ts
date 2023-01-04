@@ -38,4 +38,8 @@ export interface SuiteSignOptions {
    * The proof
    */
   readonly proof: any;
+  /**
+   * The holder secret key commitment
+   */
+  readonly holderSecretCommitment?: Uint8Array;
 }
