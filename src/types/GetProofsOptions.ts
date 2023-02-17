@@ -29,10 +29,6 @@ export interface GetProofsOptions {
    */
   documentLoader?(): any;
   /**
-   * Optional expansion map
-   */
-  expansionMap?(): any;
-  /**
    * Optional property to indicate whether to skip compacting the resulting proof
    */
   readonly skipProofCompaction?: boolean;

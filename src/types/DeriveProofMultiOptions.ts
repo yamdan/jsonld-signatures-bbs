@@ -26,11 +26,6 @@ export interface DeriveProofMultiOptions {
   // eslint-disable-next-line @typescript-eslint/ban-types
   documentLoader?: Function;
   /**
-   * Optional expansion map
-   */
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  expansionMap?: Function;
-  /**
    * Nonce to include in the derived proof
    */
   readonly nonce?: Uint8Array;

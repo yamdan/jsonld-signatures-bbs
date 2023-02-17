@@ -26,11 +26,6 @@ export interface SuiteSignOptions {
   // eslint-disable-next-line @typescript-eslint/ban-types
   documentLoader?: Function;
   /**
-   * Optional expansion map
-   */
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  expansionMap?: Function;
-  /**
    * The array of statements to sign
    */
   readonly verifyData: readonly Uint8Array[];

@@ -29,11 +29,6 @@ export interface VerifyProofMultiOptions {
    */
   // eslint-disable-next-line @typescript-eslint/ban-types
   documentLoader?: Function;
-  /**
-   * Optional expansion map
-   */
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  expansionMap?: Function;
 }
 
 export interface VerifyProofMultiInputDocs {

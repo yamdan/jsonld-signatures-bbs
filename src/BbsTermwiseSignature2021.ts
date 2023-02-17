@@ -97,15 +97,13 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
    */
   // eslint-disable-next-line @typescript-eslint/ban-types
   async createProof(options: CreateProofOptions): Promise<object> {
-    const { document, purpose, documentLoader, expansionMap, compactProof } =
-      options;
+    const { document, purpose, documentLoader, compactProof } = options;
 
     let proof;
     if (this.proof) {
       // use proof JSON-LD document passed to API
       proof = await jsonld.compact(this.proof, SECURITY_CONTEXT_URLS, {
         documentLoader,
-        expansionMap,
         compactToRelative: false
       });
     } else {
@@ -142,8 +140,7 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
     proof = await purpose.update(proof, {
       document,
       suite: this,
-      documentLoader,
-      expansionMap
+      documentLoader
     });
 
     // create data to sign
@@ -152,7 +149,6 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
         document,
         proof,
         documentLoader,
-        expansionMap,
         compactProof
       })
     ).flatMap((statement) => statement.serialize());
@@ -162,8 +158,7 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
       verifyData,
       document,
       proof,
-      documentLoader,
-      expansionMap
+      documentLoader
     });
 
     return proof;
@@ -176,7 +171,7 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
    */
   // eslint-disable-next-line @typescript-eslint/ban-types
   async verifyProof(options: VerifyProofOptions): Promise<object> {
-    const { proof, document, documentLoader, expansionMap, purpose } = options;
+    const { proof, document, documentLoader, purpose } = options;
 
     try {
       // create data to verify
@@ -185,7 +180,6 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
           document,
           proof,
           documentLoader,
-          expansionMap,
           compactProof: false
         })
       ).flatMap((statement) => statement.serialize());
@@ -194,8 +188,7 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
       const verificationMethod = await this.getVerificationMethod({
         proof,
         document,
-        documentLoader,
-        expansionMap
+        documentLoader
       });
 
       // verify signature on data
@@ -204,8 +197,7 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
         verificationMethod,
         document,
         proof,
-        documentLoader,
-        expansionMap
+        documentLoader
       });
       if (!verified) {
         throw new Error("Invalid signature.");
@@ -216,8 +208,7 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
         document,
         suite: this,
         verificationMethod,
-        documentLoader,
-        expansionMap
+        documentLoader
       });
       if (!valid) {
         throw error;
@@ -230,24 +221,22 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
   }
 
   async canonize(input: any, options: CanonizeOptions): Promise<string> {
-    const { documentLoader, expansionMap, skipExpansion } = options;
+    const { documentLoader, skipExpansion } = options;
     return jsonld.canonize(input, {
       algorithm: "URDNA2015",
       format: "application/n-quads",
       documentLoader,
-      expansionMap,
       skipExpansion,
       useNative: this.useNativeCanonize
     });
   }
 
   async canonizeProof(proof: any, options: CanonizeOptions): Promise<string> {
-    const { documentLoader, expansionMap } = options;
+    const { documentLoader } = options;
     proof = { ...proof };
     delete proof[this.proofSignatureKey];
     return this.canonize(proof, {
       documentLoader,
-      expansionMap,
       skipExpansion: false
     });
   }
@@ -260,15 +249,13 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
   async createVerifyData(
     options: CreateVerifyDataOptions
   ): Promise<Statement[]> {
-    const { proof, document, documentLoader, expansionMap } = options;
+    const { proof, document, documentLoader } = options;
 
     const proofStatements = await this.createVerifyProofData(proof, {
-      documentLoader,
-      expansionMap
+      documentLoader
     });
     const documentStatements = await this.createVerifyDocumentData(document, {
-      documentLoader,
-      expansionMap
+      documentLoader
     });
 
     // concatenate c14n proof options and c14n document
@@ -295,11 +282,10 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
    */
   async createVerifyProofData(
     proof: any,
-    { documentLoader, expansionMap }: any
+    { documentLoader }: any
   ): Promise<Statement[]> {
     const c14nProofOptions = await this.canonizeProof(proof, {
-      documentLoader,
-      expansionMap
+      documentLoader
     });
 
     return this.getStatements(c14nProofOptions);
@@ -313,11 +299,10 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
    */
   async createVerifyDocumentData(
     document: any,
-    { documentLoader, expansionMap }: any
+    { documentLoader }: any
   ): Promise<Statement[]> {
     const c14nDocument = await this.canonize(document, {
-      documentLoader,
-      expansionMap
+      documentLoader
     });
 
     return this.getStatements(c14nDocument);
@@ -327,7 +312,6 @@ export class BbsTermwiseSignature2021 extends suites.LinkedDataProof {
    * @param document {object} to be signed.
    * @param proof {object}
    * @param documentLoader {function}
-   * @param expansionMap {function}
    */
   async getVerificationMethod({
     proof,

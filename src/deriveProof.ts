@@ -15,14 +15,7 @@ import { SECURITY_PROOF_URL } from "jsonld-signatures";
 export const deriveProof = async (
   proofDocument: any,
   revealDocument: any,
-  {
-    hiddenUris,
-    suite,
-    documentLoader,
-    expansionMap,
-    skipProofCompaction,
-    nonce
-  }: any
+  { hiddenUris, suite, documentLoader, skipProofCompaction, nonce }: any
 ): Promise<any> => {
   if (Array.isArray(proofDocument)) {
     throw new TypeError("proofDocument should be an object not an array.");
@@ -34,7 +27,6 @@ export const deriveProof = async (
       hiddenUris,
       suite,
       documentLoader,
-      expansionMap,
       skipProofCompaction,
       nonce
     }
@@ -54,14 +46,7 @@ export const deriveProof = async (
  */
 export const deriveProofMulti = async (
   documents: [any, any][],
-  {
-    hiddenUris,
-    suite,
-    documentLoader,
-    expansionMap,
-    skipProofCompaction,
-    nonce
-  }: any
+  { hiddenUris, suite, documentLoader, skipProofCompaction, nonce }: any
 ): Promise<any[]> => {
   if (!suite) {
     throw new TypeError('"options.suite" is required.');
@@ -77,7 +62,6 @@ export const deriveProofMulti = async (
         document: proofDocument,
         proofType: suite.supportedDeriveProofType,
         documentLoader,
-        expansionMap,
         skipProofCompaction
       });
 
@@ -94,7 +78,6 @@ export const deriveProofMulti = async (
   const derivedProofs = await suite.deriveProofMulti({
     inputDocuments,
     documentLoader,
-    expansionMap,
     hiddenUris,
     nonce
   });
@@ -110,8 +93,7 @@ export const deriveProofMulti = async (
 
       // account for type-scoped `proof` definition by getting document types
       const { types, alias } = await getTypeInfo(derivedProof.document, {
-        documentLoader,
-        expansionMap
+        documentLoader
       });
 
       expandedProof["@type"] = types;
@@ -120,7 +102,6 @@ export const deriveProofMulti = async (
 
       const compactProof = await jsonld.compact(expandedProof, ctx, {
         documentLoader,
-        expansionMap,
         compactToRelative: false
       });
 
@@ -164,7 +145,7 @@ export const deriveProofMulti = async (
  */
 export const verifyProofMulti = async (
   documents: any[],
-  { suite, purpose, documentLoader, expansionMap, skipProofCompaction }: any
+  { suite, purpose, documentLoader, skipProofCompaction }: any
 ): Promise<any> => {
   if (!suite) {
     throw new TypeError('"options.suite" is required.');
@@ -180,7 +161,6 @@ export const verifyProofMulti = async (
         document: doc,
         proofType: suite.proofType,
         documentLoader,
-        expansionMap,
         skipProofCompaction
       });
 
@@ -197,7 +177,6 @@ export const verifyProofMulti = async (
   return suite.verifyProofMulti({
     inputDocuments,
     documentLoader,
-    expansionMap,
     purpose
   });
 };

@@ -30,11 +30,6 @@ export interface CreateProofOptions {
   // eslint-disable-next-line @typescript-eslint/ban-types
   documentLoader?: Function;
   /**
-   * Optional expansion map
-   */
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  expansionMap?: Function;
-  /**
    * Indicates whether to compact the resulting proof
    */
   readonly compactProof: boolean;
