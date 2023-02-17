@@ -85,7 +85,7 @@ class URIAnonymizer {
 }
 
 export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
-  constructor({ useNativeCanonize, key, LDKeyClass, type }: any = {}) {
+  constructor({ useNativeCanonize, key, LDKeyClass }: any = {}) {
     super({
       type: "BbsTermwiseSignatureProof2021"
     });
@@ -1107,10 +1107,10 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
               if (!matched || matched.length < 5) {
                 throw new Error("invalid range proofs");
               }
-              const min_eq = matched[1] === "[";
+              // const min_eq = matched[1] === "[";
               const min = parseInt(matched[2]);
               const max = parseInt(matched[3]);
-              const max_eq = matched[4] === "]";
+              // const max_eq = matched[4] === "]";
               const originalIndex = revealedTermIndicies[termIndex];
               return [originalIndex, min, max];
             });
