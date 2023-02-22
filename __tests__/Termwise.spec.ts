@@ -13,6 +13,8 @@ import {
   expRevealDocument3,
   testSignedDocumentMultiProofs,
   testRevealDocument,
+  expVCDocumentWithLongList,
+  expRevealDocumentWithLongList,
   customLoader
 } from "./__fixtures__";
 
@@ -344,6 +346,21 @@ describe("BbsTermwise2021 and BbsTermwiseSignature2021", () => {
 
     await signDeriveVerifyMulti(
       [{ vc, revealDocument: expRevealDocument, key: expKey1 }],
+      hiddenUris,
+      customLoader,
+      BbsTermwiseSignature2021,
+      BbsTermwiseSignatureProof2021
+    );
+  });
+
+  it("should sign and verify a VC with long list, then derive and verify a proof from it", async () => {
+    const vc = { ...expVCDocumentWithLongList };
+    const revealDocument = { ...expRevealDocumentWithLongList };
+    const key = expKey1;
+    const hiddenUris = ["http://example.org/credentials/1234"];
+
+    await signDeriveVerifyMulti(
+      [{ vc, revealDocument, key }],
       hiddenUris,
       customLoader,
       BbsTermwiseSignature2021,

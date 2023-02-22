@@ -1,0 +1,63 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://zkp-ld.org/bbs-termwise-2021.jsonld",
+    "https://schema.org"
+  ],
+  "id": "http://example.org/credentials/2/1",
+  "type": "VerifiableCredential",
+  "issuer": "did:example:issuer1",
+  "issuanceDate": "2021-09-01T00:00:00Z",
+  "expirationDate": "2022-09-01T00:00:00Z",
+  "credentialSubject": {
+    "id": "did:example:cityA",
+    "type": "Place",
+    "freightList": [
+      {
+        "xxx": "yyy1",
+        "from": "fff1"
+      },
+      {
+        "xxx": "yyy2",
+        "from": "fff2"
+      },
+      {
+        "xxx": "yyy3",
+        "from": "fff3"
+      },
+      {
+        "xxx": "yyy4",
+        "from": "fff4"
+      },
+      {
+        "xxx": "yyy5",
+        "from": "fff5"
+      },
+      {
+        "xxx": "yyy6",
+        "from": "fff6",
+        "to": "ttt6"
+      },
+      {
+        "xxx": "yyy7",
+        "from": "fff7"
+      },
+      {
+        "xxx": "yyy8",
+        "from": "fff8"
+      },
+      {
+        "xxx": "yyy9",
+        "from": "fff9"
+      },
+      {
+        "xxx": "yyy10",
+        "from": "fff10"
+      },
+      {
+        "xxx": "yyy11",
+        "from": "fff11"
+      }
+    ]
+  }
+}

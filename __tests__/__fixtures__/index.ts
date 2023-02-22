@@ -57,6 +57,8 @@ import expVCDocumentForRangeProofInvalid from "./data/exp_vc_rangeproof_invalid.
 import expRevealDocumentWithoutRangeProof from "./data/exp_reveal_document_rangeproof0.json";
 import expRevealDocumentForRangeProof from "./data/exp_reveal_document_rangeproof1.json";
 import expRevealDocumentForRangeProof2 from "./data/exp_reveal_document_rangeproof2.json";
+import expVCDocumentWithLongList from "./data/exp_vc_with_long_list.json";
+import expRevealDocumentWithLongList from "./data/exp_reveal_document_with_long_list.json";
 
 export {
   exampleBls12381KeyPair,
@@ -103,5 +105,7 @@ export {
   expVCDocumentForRangeProofInvalid,
   expRevealDocumentWithoutRangeProof,
   expRevealDocumentForRangeProof,
-  expRevealDocumentForRangeProof2
+  expRevealDocumentForRangeProof2,
+  expVCDocumentWithLongList,
+  expRevealDocumentWithLongList
 };
