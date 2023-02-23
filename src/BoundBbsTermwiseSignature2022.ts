@@ -33,8 +33,8 @@ export class BoundBbsTermwiseSignature2022 extends suites.LinkedDataProof {
       date,
       useNativeCanonize,
       LDKeyClass,
-      holderSecretCommitment,
-      holderSecretKey
+      proverCommitment,
+      proverSecretKey
     } = options;
     // validate common options
     if (
@@ -76,8 +76,8 @@ export class BoundBbsTermwiseSignature2022 extends suites.LinkedDataProof {
     }
     this.useNativeCanonize = useNativeCanonize;
     this.Statement = Statement;
-    this.holderSecretCommitment = holderSecretCommitment;
-    this.holderSecretKey = holderSecretKey;
+    this.proverCommitment = proverCommitment;
+    this.proverSecretKey = proverSecretKey;
   }
 
   // ported from
@@ -165,9 +165,9 @@ export class BoundBbsTermwiseSignature2022 extends suites.LinkedDataProof {
       })
     ).flatMap((statement) => statement.serialize());
 
-    // append holdersecretcommitment at the end of the verifyData
-    if (typeof this.holderSecretCommitment === "undefined") {
-      throw new Error("holderSecretCommitment is undefined");
+    // append proverCommitment at the end of the verifyData
+    if (typeof this.proverCommitment === "undefined") {
+      throw new Error("proverCommitment is undefined");
     }
 
     // sign data
@@ -177,7 +177,7 @@ export class BoundBbsTermwiseSignature2022 extends suites.LinkedDataProof {
       proof,
       documentLoader,
       expansionMap,
-      holderSecretCommitment: this.holderSecretCommitment
+      proverCommitment: this.proverCommitment
     });
 
     return proof;
@@ -204,11 +204,11 @@ export class BoundBbsTermwiseSignature2022 extends suites.LinkedDataProof {
         })
       ).flatMap((statement) => statement.serialize());
 
-      // append holdersecretcommitment at the end of the verifyData
-      if (typeof this.holderSecretKey === "undefined") {
-        throw new Error("holderSecretKey is undefined");
+      // append proverSecretKey at the end of the verifyData
+      if (typeof this.proverSecretKey === "undefined") {
+        throw new Error("proverSecretKey is undefined");
       }
-      verifyData.push(this.holderSecretKey);
+      verifyData.push(this.proverSecretKey);
 
       // fetch verification method
       const verificationMethod = await this.getVerificationMethod({
@@ -401,7 +401,7 @@ export class BoundBbsTermwiseSignature2022 extends suites.LinkedDataProof {
    */
   // eslint-disable-next-line @typescript-eslint/ban-types
   async sign(options: SuiteSignOptions): Promise<object> {
-    const { verifyData, proof, holderSecretCommitment } = options;
+    const { verifyData, proof, proverCommitment } = options;
 
     if (!(this.signer && typeof this.signer.sign === "function")) {
       throw new Error(
@@ -409,12 +409,12 @@ export class BoundBbsTermwiseSignature2022 extends suites.LinkedDataProof {
       );
     }
 
-    if (typeof holderSecretCommitment === "undefined")
-      throw new Error("holderSecretCommitment is undefined");
+    if (typeof proverCommitment === "undefined")
+      throw new Error("proverCommitment is undefined");
 
     const proofValue: Uint8Array = await this.signer.sign({
       data: verifyData,
-      holderSecretCommitment: holderSecretCommitment
+      proverCommitment: proverCommitment
     });
 
     proof[this.proofSignatureKey] = Buffer.from(proofValue).toString("base64");

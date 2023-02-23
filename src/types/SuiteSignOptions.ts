@@ -41,5 +41,5 @@ export interface SuiteSignOptions {
   /**
    * The holder secret key commitment
    */
-  readonly holderSecretCommitment?: Uint8Array;
+  readonly proverCommitment?: Uint8Array;
 }

@@ -51,11 +51,11 @@ export interface SignatureSuiteOptions {
 
   readonly type?: any;
   /**
-   * The holder secret key commitment for signing
+   * The prover secret key commitment for signing
    */
-  readonly holderSecretCommitment?: Uint8Array;
+  readonly proverCommitment?: Uint8Array;
   /**
-   * The holder secret key for verifing
+   * The prover secret key for verifing
    */
-  readonly holderSecretKey?: Uint8Array;
+  readonly proverSecretKey?: Uint8Array;
 }

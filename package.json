@@ -63,10 +63,10 @@
   },
   "dependencies": {
     "@stablelib/random": "1.0.1",
-    "@zkp-ld/bbs-signatures": "0.6.14",
-    "@zkp-ld/bls12381-key-pair": "0.7.14",
+    "@zkp-ld/bbs-signatures": "0.6.15",
+    "@zkp-ld/bls12381-key-pair": "0.7.15",
     "bs58": "4.0.1",
-    "jsonld": "5.2.0",
+    "jsonld": "^8.1.0",
     "jsonld-signatures": "9.3.0",
     "rdf-canonize": "^3.0.0",
     "uuid": "8.3.2"

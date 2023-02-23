@@ -21,7 +21,7 @@ describe("BoundBbsTermwiseSignature2022", () => {
     const signed = await jsigs.sign(testDocumentForBound, {
       suite: new BoundBbsTermwiseSignature2022({
         key,
-        holderSecretCommitment: commitmentForTestDocument
+        proverCommitment: commitmentForTestDocument
       }),
       purpose: new jsigs.purposes.AssertionProofPurpose(),
       documentLoader: customLoader
