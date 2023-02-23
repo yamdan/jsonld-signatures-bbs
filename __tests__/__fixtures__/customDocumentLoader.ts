@@ -37,6 +37,7 @@ import expExampleDidDoc2 from "./data/exp_diddoc_issuer2.json";
 import expExampleDidKey3 from "./data/exp_didkey_issuer3.json";
 import expExampleDidDoc3 from "./data/exp_diddoc_issuer3.json";
 import bbsTermwise from "./contexts/bbs-termwise-2021.json";
+import boundBbsTermwiseContext from "./contexts/bound-bbs-termwise-2022.json";
 import exampleDidKey2 from "./data/didkey.json";
 
 export const documents: any = {
@@ -65,6 +66,7 @@ export const documents: any = {
   "did:example:issuer3": expExampleDidDoc3,
   "did:example:issuer3#bbs-bls-key1": expExampleDidKey3,
   "https://zkp-ld.org/bbs-termwise-2021.jsonld": bbsTermwise,
+  "https://zkp-ld.org/bound-bbs-termwise-2022.jsonld": boundBbsTermwiseContext,
   "https://w3id.org/vaccination/v1": vax,
   "did:key:z5TcDVRemCWTd6qwxxhFeYDpQhK4pUYtuutodKP2MSDjzcqokf6cNCARsaF8JNZQ8FzWAYfFZbUqUCUDMWeWp8xVkRSr9z5Tf5k2tJgpjsqNM23E4VjHsCzN6WcSvLGKSA9VEMTc1d2F81mCCauerPY1VC8vPTkvtmEQZfmaZ54x15PJwbhkBxaEbydWjd7D2CWHbkFg9":
     exampleDidKey2,

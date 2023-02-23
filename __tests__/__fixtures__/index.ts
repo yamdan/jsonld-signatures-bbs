@@ -17,6 +17,7 @@ import exampleBls12381KeyPair from "./data/exampleBls12381KeyPair.json";
 import exampleBls12381KeyPairJwk from "./data/exampleBls12381KeyPairJwk.json";
 import exampleEd25519KeyPair from "./data/did_example_b34ca6cd37bbf23_test.json";
 import testDocument from "./data/test_document.json";
+import testDocumentForBound from "./data/test_document_for_bound.json";
 import testRevealDocument from "./data/test_reveal_document.json";
 import testRevealDocumentWithUnknownAttributes from "./data/test_reveal_document_with_unknown_attributes.json";
 import testSignedDocument from "./data/test_signed_document.json";
@@ -62,6 +63,7 @@ export {
   exampleBls12381KeyPair,
   exampleBls12381KeyPairJwk,
   exampleEd25519KeyPair,
+  testDocumentForBound,
   testDocument,
   testRevealDocument,
   testRevealDocumentWithUnknownAttributes,
