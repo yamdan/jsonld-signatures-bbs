@@ -22,11 +22,6 @@ export interface CanonizeOptions {
   // eslint-disable-next-line @typescript-eslint/ban-types
   documentLoader?: Function;
   /**
-   * Optional expansion map
-   */
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  expansionMap?: Function;
-  /**
    * Indicates whether to skip expansion during canonization
    */
   readonly skipExpansion?: boolean;

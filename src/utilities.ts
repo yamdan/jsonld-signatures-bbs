@@ -36,8 +36,7 @@ const PROOF_PROPERTY = "proof";
 export const getProofs = async (
   options: GetProofsOptions
 ): Promise<GetProofsResult> => {
-  const { proofType, skipProofCompaction, documentLoader, expansionMap } =
-    options;
+  const { proofType, skipProofCompaction, documentLoader } = options;
   let { document } = options;
 
   let proofs;
@@ -46,7 +45,6 @@ export const getProofs = async (
     // document to find the proof
     document = await jsonld.compact(document, SECURITY_CONTEXT_URLS, {
       documentLoader,
-      expansionMap,
       compactToRelative: false
     });
   }
@@ -98,14 +96,13 @@ export const getTypeInfo = async (
   document: any,
   options: GetTypeOptions
 ): Promise<any> => {
-  const { documentLoader, expansionMap } = options;
+  const { documentLoader } = options;
 
   // determine `@type` alias, if any
   const context = jsonld.getValues(document, "@context");
 
   const compacted = await jsonld.compact({ "@type": "_:b0" }, context, {
-    documentLoader,
-    expansionMap
+    documentLoader
   });
 
   delete compacted["@context"];
@@ -119,8 +116,7 @@ export const getTypeInfo = async (
     .getValues(document, "@type")
     .concat(jsonld.getValues(document, alias));
 
-  const expanded =
-    (await jsonld.expand(toExpand, { documentLoader, expansionMap }))[0] || {};
+  const expanded = (await jsonld.expand(toExpand, { documentLoader }))[0] || {};
 
   return { types: jsonld.getValues(expanded, "@type"), alias };
 };

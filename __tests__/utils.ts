@@ -66,8 +66,7 @@ export const signDeriveVerifyMulti = async (
     const signedVc = await jsigs.sign(vc, {
       suite: new signSuite({ key }),
       purpose: new jsigs.purposes.AssertionProofPurpose(),
-      documentLoader: customLoader,
-      expansionMap: false
+      documentLoader: customLoader
     });
     expect(signedVc).toBeDefined();
 
@@ -79,8 +78,7 @@ export const signDeriveVerifyMulti = async (
     const verifiedVc = await jsigs.verify(signedVc, {
       suite: new signSuite(),
       purpose: new jsigs.purposes.AssertionProofPurpose(),
-      documentLoader: customLoader,
-      expansionMap: false
+      documentLoader: customLoader
     });
     expect(verifiedVc.verified).toBeTruthy();
   }
@@ -141,8 +139,7 @@ export const signDeriveVerifyMultiJSigLike = async (
   const result = await verifyProofMulti(derivedProofs, {
     suite: new proofSuite(),
     purpose: new jsigs.purposes.AssertionProofPurpose(),
-    documentLoader: customLoader,
-    expansionMap: false
+    documentLoader: customLoader
   });
 
   expect(result.verified).toBeTruthy();
@@ -162,8 +159,7 @@ export const signDeriveMultiJSigLike = async (
         const signedVc = await jsigs.sign(vc, {
           suite: new signSuite({ key }),
           purpose: new jsigs.purposes.AssertionProofPurpose(),
-          documentLoader: customLoader,
-          expansionMap: false
+          documentLoader: customLoader
         });
         expect(signedVc).toBeDefined();
         return [signedVc, revealDocument];
@@ -176,8 +172,7 @@ export const signDeriveMultiJSigLike = async (
     const verifiedVc = await jsigs.verify(signedVc, {
       suite: new signSuite(),
       purpose: new jsigs.purposes.AssertionProofPurpose(),
-      documentLoader: customLoader,
-      expansionMap: false
+      documentLoader: customLoader
     });
     expect(verifiedVc.verified).toBeTruthy();
   }

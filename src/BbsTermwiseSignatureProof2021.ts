@@ -85,7 +85,7 @@ class URIAnonymizer {
 }
 
 export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
-  constructor({ useNativeCanonize, key, LDKeyClass, type }: any = {}) {
+  constructor({ useNativeCanonize, key, LDKeyClass }: any = {}) {
     super({
       type: "BbsTermwiseSignatureProof2021"
     });
@@ -124,19 +124,18 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
   }
 
   async canonize(input: any, options: CanonizeOptions): Promise<string> {
-    const { documentLoader, expansionMap, skipExpansion } = options;
+    const { documentLoader, skipExpansion } = options;
     return jsonld.canonize(input, {
       algorithm: "URDNA2015",
       format: "application/n-quads",
       documentLoader,
-      expansionMap,
       skipExpansion,
       useNative: this.useNativeCanonize
     });
   }
 
   async canonizeProof(proof: any, options: CanonizeOptions): Promise<string> {
-    const { documentLoader, expansionMap } = options;
+    const { documentLoader } = options;
     proof = { ...proof };
 
     delete proof.nonce;
@@ -144,7 +143,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
 
     return this.canonize(proof, {
       documentLoader,
-      expansionMap,
       skipExpansion: false
     });
   }
@@ -157,15 +155,13 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
   async createVerifyData(
     options: CreateVerifyDataOptions
   ): Promise<Statement[]> {
-    const { proof, document, documentLoader, expansionMap } = options;
+    const { proof, document, documentLoader } = options;
 
     const proofStatements = await this.createVerifyProofData(proof, {
-      documentLoader,
-      expansionMap
+      documentLoader
     });
     const documentStatements = await this.createVerifyDocumentData(document, {
-      documentLoader,
-      expansionMap
+      documentLoader
     });
 
     // concatenate c14n proof options and c14n document
@@ -192,11 +188,10 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    */
   async createVerifyProofData(
     proof: any,
-    { documentLoader, expansionMap }: any
+    { documentLoader }: any
   ): Promise<Statement[]> {
     const c14nProofOptions = await this.canonizeProof(proof, {
-      documentLoader,
-      expansionMap
+      documentLoader
     });
 
     return this.getStatements(c14nProofOptions);
@@ -210,11 +205,10 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    */
   async createVerifyDocumentData(
     document: any,
-    { documentLoader, expansionMap }: any
+    { documentLoader }: any
   ): Promise<Statement[]> {
     const c14nDocument = await this.canonize(document, {
-      documentLoader,
-      expansionMap
+      documentLoader
     });
 
     return this.getStatements(c14nDocument);
@@ -224,7 +218,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    * @param document {object} to be signed.
    * @param proof {object}
    * @param documentLoader {function}
-   * @param expansionMap {function}
    */
   async getVerificationMethod({
     proof,
@@ -284,14 +277,12 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     proof: string,
     options: CanonicalizeOptions
   ): Promise<CanonicalizeResult> {
-    const { suite, documentLoader, expansionMap, skipProofCompaction } =
-      options;
+    const { suite, documentLoader, skipProofCompaction } = options;
 
     // Get the input document statements
     const documentStatements: Statement[] =
       await suite.createVerifyDocumentData(document, {
         documentLoader,
-        expansionMap,
         compactProof: !skipProofCompaction
       });
 
@@ -300,7 +291,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       proof,
       {
         documentLoader,
-        expansionMap,
         compactProof: !skipProofCompaction
       }
     );
@@ -484,7 +474,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    * @param anonymizedStatements N-Quad statements
    * @param suite
    * @param documentLoader
-   * @param expansionMap
    *
    * @returns {Promise<[number, number, number][]>} term-index, min, max to be applied to range proofs
    */
@@ -492,8 +481,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     paths: (string | number)[][],
     anonymizedStatements: Statement[],
     suite: any,
-    documentLoader: any,
-    expansionMap: any
+    documentLoader: any
   ): Promise<[number, number, number][]> {
     const pathToFrame = (
       path: (string | number)[]
@@ -545,8 +533,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
             // Canonicalize the resulting reveal document
             const statements: Statement[] =
               await suite.createVerifyDocumentData(revealedDocument, {
-                documentLoader,
-                expansionMap
+                documentLoader
               });
 
             const statementIndicies = this.getIndicies(
@@ -581,7 +568,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       proof,
       revealDocument,
       documentLoader,
-      expansionMap,
       skipProofCompaction,
       nonce,
       hiddenUris
@@ -596,7 +582,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         }
       ],
       documentLoader,
-      expansionMap,
       skipProofCompaction,
       nonce,
       hiddenUris
@@ -617,7 +602,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
     const {
       inputDocuments,
       documentLoader,
-      expansionMap,
       skipProofCompaction,
       hiddenUris = [],
       nonce: givenNonce
@@ -666,7 +650,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
       const documentStatements: Statement[] =
         await suite.createVerifyDocumentData(document, {
           documentLoader,
-          expansionMap,
           compactProof: !skipProofCompaction
         });
 
@@ -716,7 +699,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         revealDocument["@context"],
         {
           documentLoader,
-          expansionMap,
           compactToRelative: false
         }
       );
@@ -732,8 +714,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         pathsToRanges,
         anonymizedStatements,
         suite,
-        documentLoader,
-        expansionMap
+        documentLoader
       );
 
       // Update anonymized statements using range proof indicators
@@ -753,7 +734,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         {
           suite,
           documentLoader,
-          expansionMap,
           skipProofCompaction
         }
       );
@@ -790,7 +770,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           proof,
           {
             documentLoader,
-            expansionMap,
             compactProof: !skipProofCompaction
           }
         );
@@ -840,8 +819,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         const verificationMethod = await this.getVerificationMethod({
           proof,
           document,
-          documentLoader,
-          expansionMap
+          documentLoader
         });
 
         // Construct a key pair class from the returned verification method
@@ -859,7 +837,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
             SECURITY_CONTEXT_URLS,
             {
               documentLoader,
-              expansionMap,
               compactToRelative: false
             }
           );
@@ -951,7 +928,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
    * @returns {Promise<{object}>} Resolves with the verification result.
    */
   async verifyProof(options: VerifyProofOptions): Promise<VerifyProofResult> {
-    const { document, documentLoader, expansionMap, purpose, proof } = options;
+    const { document, documentLoader, purpose, proof } = options;
 
     const result = await this.verifyProofMulti({
       inputDocuments: [
@@ -961,7 +938,6 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         }
       ],
       documentLoader,
-      expansionMap,
       purpose
     });
 
@@ -980,7 +956,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
   async verifyProofMulti(
     options: VerifyProofMultiOptions
   ): Promise<VerifyProofMultiResult> {
-    const { inputDocuments, documentLoader, expansionMap, purpose } = options;
+    const { inputDocuments, documentLoader, purpose } = options;
 
     const messagesArray: Uint8Array[][] = [];
     const proofArray: Uint8Array[] = [];
@@ -1024,8 +1000,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
         // Canonicalize document: get N-Quads from JSON-LD
         const revealedStatements: Statement[] =
           await this.createVerifyDocumentData(expandedDocument, {
-            documentLoader,
-            expansionMap
+            documentLoader
           });
         // keep document N-Quads statements to calculate challenge hash later
         revealedStatementsArray.push(revealedStatements);
@@ -1076,8 +1051,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           const proofStatements: Statement[] = await this.createVerifyProofData(
             proof,
             {
-              documentLoader,
-              expansionMap
+              documentLoader
             }
           );
 
@@ -1133,10 +1107,10 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
               if (!matched || matched.length < 5) {
                 throw new Error("invalid range proofs");
               }
-              const min_eq = matched[1] === "[";
+              // const min_eq = matched[1] === "[";
               const min = parseInt(matched[2]);
               const max = parseInt(matched[3]);
-              const max_eq = matched[4] === "]";
+              // const max_eq = matched[4] === "]";
               const originalIndex = revealedTermIndicies[termIndex];
               return [originalIndex, min, max];
             });
@@ -1146,8 +1120,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
           const verificationMethod = await this.getVerificationMethod({
             proof,
             document,
-            documentLoader,
-            expansionMap
+            documentLoader
           });
 
           // Ensure proof was performed for a valid purpose
@@ -1155,8 +1128,7 @@ export class BbsTermwiseSignatureProof2021 extends suites.LinkedDataProof {
             document,
             suite: this,
             verificationMethod,
-            documentLoader,
-            expansionMap
+            documentLoader
           });
           if (!valid) {
             throw error;

@@ -251,7 +251,7 @@ describe("BbsTermwiseSignatureProof2021", () => {
       ...derivedProof.document,
       proof: {
         ...derivedProof.proof,
-        proofValue: derivedProof.proof.proofValue + "BAD" // bad suffix
+        proofValue: derivedProof.proof.proofValue + "=====" // bad suffix
       }
     };
 

@@ -142,8 +142,7 @@ describe("BbsTermwise2021 and BbsTermwiseSignature2021", () => {
     const result = await verifyProofMulti(derivedProofs, {
       suite: new BbsTermwiseSignatureProof2021(),
       purpose: new jsigs.purposes.AssertionProofPurpose(),
-      documentLoader: customLoader,
-      expansionMap: false
+      documentLoader: customLoader
     });
     expect(result.verified).toBeTruthy();
   });
@@ -170,8 +169,7 @@ describe("BbsTermwise2021 and BbsTermwiseSignature2021", () => {
     const result = await verifyProofMulti(modifiedProofs, {
       suite: new BbsTermwiseSignatureProof2021(),
       purpose: new jsigs.purposes.AssertionProofPurpose(),
-      documentLoader: customLoader,
-      expansionMap: false
+      documentLoader: customLoader
     });
 
     expect(result.verified).toBeFalsy();
@@ -199,8 +197,7 @@ describe("BbsTermwise2021 and BbsTermwiseSignature2021", () => {
     const result = await verifyProofMulti(modifiedProofs, {
       suite: new BbsTermwiseSignatureProof2021(),
       purpose: new jsigs.purposes.AssertionProofPurpose(),
-      documentLoader: customLoader,
-      expansionMap: false
+      documentLoader: customLoader
     });
 
     expect(result.verified).toBeFalsy();
@@ -228,8 +225,7 @@ describe("BbsTermwise2021 and BbsTermwiseSignature2021", () => {
     const result = await verifyProofMulti(modifiedProofs, {
       suite: new BbsTermwiseSignatureProof2021(),
       purpose: new jsigs.purposes.AssertionProofPurpose(),
-      documentLoader: customLoader,
-      expansionMap: false
+      documentLoader: customLoader
     });
 
     expect(result.verified).toBeFalsy();
@@ -257,8 +253,7 @@ describe("BbsTermwise2021 and BbsTermwiseSignature2021", () => {
     const result = await verifyProofMulti(modifiedProofs, {
       suite: new BbsTermwiseSignatureProof2021(),
       purpose: new jsigs.purposes.AssertionProofPurpose(),
-      documentLoader: customLoader,
-      expansionMap: false
+      documentLoader: customLoader
     });
 
     expect(result.verified).toBeFalsy();
@@ -273,8 +268,7 @@ describe("BbsTermwise2021 and BbsTermwiseSignature2021", () => {
       jsigs.sign(vc, {
         suite: new BbsTermwiseSignature2021({ key: expKey1 }),
         purpose: new jsigs.purposes.AssertionProofPurpose(),
-        documentLoader: customLoader,
-        expansionMap: false
+        documentLoader: customLoader
       });
     await expect(sign).rejects.toThrow();
   });
@@ -303,8 +297,7 @@ describe("BbsTermwise2021 and BbsTermwiseSignature2021", () => {
     const result = await verifyProofMulti(modifiedProofs, {
       suite: new BbsTermwiseSignatureProof2021(),
       purpose: new jsigs.purposes.AssertionProofPurpose(),
-      documentLoader: customLoader,
-      expansionMap: false
+      documentLoader: customLoader
     });
 
     expect(result.verified).toBeFalsy();
@@ -325,8 +318,7 @@ describe("BbsTermwise2021 and BbsTermwiseSignature2021", () => {
     const derivedProofVerified = await verifyProofMulti([result], {
       suite: new BbsTermwiseSignatureProof2021(),
       purpose: new jsigs.purposes.AssertionProofPurpose(),
-      documentLoader: customLoader,
-      expansionMap: false
+      documentLoader: customLoader
     });
 
     expect(result).toBeDefined();
