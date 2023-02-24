@@ -63,19 +63,8 @@
 
 ### BREAKING CHANGES
 
+* update suites and APIs: `BbsTermwiseSignature2021` and `BbsTermwiseSignatureProof2021` supporting VP with multiple credentials, termwise selective disclosures, hidden URIs, and range proofs
 * `expansionMap` option is obsoleted
-
-* build: upgrade dependencies; remove all the expansionMap options
-
-* refactor: remove unused codes
-
-* build: add eslint-formatter-table
-
-* test: modify a bad suffix (for currently skipped test)
-
-* test: remove `name` from jest.config
-
-
 
 # [0.11.0](https://github.com/mattrglobal/jsonld-signatures-bbs/compare/v0.10.0...v0.11.0) (2021-08-06)
 
