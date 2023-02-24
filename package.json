@@ -64,8 +64,8 @@
   },
   "dependencies": {
     "@stablelib/random": "1.0.2",
-    "@zkp-ld/bbs-signatures": "0.6.15",
-    "@zkp-ld/bls12381-key-pair": "0.7.15",
+    "@zkp-ld/bbs-signatures": "0.7.0",
+    "@zkp-ld/bls12381-key-pair": "0.8.0",
     "bs58": "5.0.0",
     "jsonld": "8.1.0",
     "jsonld-signatures": "11.1.0",
