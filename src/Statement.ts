@@ -234,11 +234,13 @@ export class Statement {
     }
     const g = { ...this.graph };
 
-    s.value = s.value.replace(from, to);
-    p.value = p.value.replace(from, to);
-    o.value = o.value.replace(from, to);
+    const exact_replace = (v: string, from: string, to: string): string =>
+      v === from ? to : v;
+    s.value = exact_replace(s.value, from, to);
+    p.value = exact_replace(p.value, from, to);
+    o.value = exact_replace(o.value, from, to);
     if (g) {
-      g.value = g.value.replace(from, to);
+      g.value = exact_replace(g.value, from, to);
     }
 
     return new Statement(undefined, s, p, o, g);
