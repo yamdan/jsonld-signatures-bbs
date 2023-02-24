@@ -1,6 +1,6 @@
 {
   "name": "@zkp-ld/jsonld-signatures-bbs",
-  "version": "0.11.17",
+  "version": "0.12.0",
   "description": "**Experimental** (do not use in production): Based on MATTR's [jsonld-signatures-bbs](https://github.com/mattrglobal/jsonld-signatures-bbs)",
   "homepage": "https://github.com/zkp-ld/jsonld-signatures-bbs",
   "author": "yamdan",
